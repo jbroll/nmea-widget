@@ -14,8 +14,14 @@ interface SatelliteUseInfo {
   lastSeen: number;
 }
 
+interface GSVSequence {
+  expectedMessage: number;
+  messageCount: number;
+  messages: Map<number, GSVPacket>;
+}
+
 export class NMEAAccumulator {
-  private gsvMessages: GSVPacket[] = [];
+  private sequences = new Map<string, GSVSequence>();  // talkerId -> sequence
   private position: GGAPacket | null = null;
   private errorStats: GSTPacket | null = null;
   private visibleSatellites = new Map<number, Satellite>();
@@ -55,50 +61,66 @@ export class NMEAAccumulator {
 
   private handleGSV(gsv: GSVPacket) {
     try {
-      // Update or add the message in the collection
-      const existingIndex = this.gsvMessages.findIndex(
-        msg => msg.messageNumber === gsv.messageNumber && msg.talkerId === gsv.talkerId
-      );
+      const talkerId = gsv.talkerId;
+      const messageNumber = gsv.messageNumber;
       
-      if (existingIndex !== -1) {
-        this.gsvMessages[existingIndex] = gsv;
-      } else {
-        this.gsvMessages.push(gsv);
+      // Get or create sequence for this talker
+      let sequence = this.sequences.get(talkerId);
+
+      // If this is message #1, start a new sequence
+      if (messageNumber === 1) {
+        sequence = {
+          expectedMessage: 1,
+          messageCount: gsv.numberOfMessages,
+          messages: new Map()
+        };
+        this.sequences.set(talkerId, sequence);
+
+      } else if (!sequence || messageNumber !== sequence.expectedMessage) {
+        // Reject out-of-order message
+        return;
       }
 
-      // Check if we have all messages for this constellation
-      const constellationMessages = this.gsvMessages.filter(msg => msg.talkerId === gsv.talkerId);
-      const isComplete = constellationMessages.length === gsv.numberOfMessages;
-      const messageNumbers = new Set(constellationMessages.map(msg => msg.messageNumber));
-      const hasAllMessageNumbers = messageNumbers.size === gsv.numberOfMessages;
-      
-      if (isComplete && hasAllMessageNumbers) {
-        // Clear existing satellites for this constellation
-        this.visibleSatellites.forEach((sat, id) => {
-          if (sat.constellation === gsv.talkerId) {
-            this.visibleSatellites.delete(id);
-          }
-        });
-        
-        // Process all satellites from the complete set
-        constellationMessages.forEach(msg => {
-          if (msg.satellites) {
-            msg.satellites.forEach(sat => {
-              if (sat && sat.prnNumber && sat.prnNumber > 0) {
-                this.visibleSatellites.set(sat.prnNumber, {
-                  ...sat,
-                  constellation: msg.talkerId
-                });
-              }
-            });
-          }
-        });
-        
-        // Remove processed messages
-        this.gsvMessages = this.gsvMessages.filter(msg => msg.talkerId !== gsv.talkerId);
+      // Add message to sequence and increment expected message number
+      sequence.messages.set(messageNumber, gsv);
+      sequence.expectedMessage++;
+
+      // Check if sequence is complete
+      if (sequence.messages.size === sequence.messageCount) {
+        this.processCompleteSequence(talkerId, sequence);
+        this.sequences.delete(talkerId);
       }
     } catch (error) {
       console.error('Error handling GSV:', error);
+    }
+  }
+
+  private processCompleteSequence(talkerId: string, sequence: GSVSequence) {
+    // Clear existing satellites for this constellation
+    this.visibleSatellites.forEach((sat, id) => {
+      if (sat.constellation === talkerId) {
+        this.visibleSatellites.delete(id);
+      }
+    });
+
+    // Process all satellites from the complete sequence
+    for (let i = 1; i <= sequence.messageCount; i++) {
+      const msg = sequence.messages.get(i);
+      if (msg?.satellites) {
+        msg.satellites.forEach(sat => {
+          if (sat && sat.prnNumber && sat.prnNumber > 0 // &&
+            // !Number.isNaN(sat.elevationDegrees) && 
+            // !Number.isNaN(sat.azimuthTrue)
+            ) {
+            this.visibleSatellites.set(sat.prnNumber, {
+              ...sat,
+              constellation: talkerId
+            });
+          }
+        });
+      } else {
+          console.log("Missing Packet in Sequence");
+      }
     }
   }
 

@@ -1,7 +1,8 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
+import NMEADetailView from './NMEADetailView';
 
-// Create simple icon components using SVG directly
+// Icon components
 const ChevronDown = () => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -10,9 +11,9 @@ const ChevronDown = () => (
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
-    stroke-linejoin="round"
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
   >
     <path d="m6 9 6 6 6-6"/>
   </svg>
@@ -26,9 +27,9 @@ const ChevronRight = () => (
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
-    stroke-linejoin="round"
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
   >
     <path d="m9 18 6-6-6-6"/>
   </svg>
@@ -41,8 +42,9 @@ const NMEADisplay = ({
   onDisconnect,
   isConnected 
 }) => {
-  const [isRawDataOpen, setIsRawDataOpen] = useState(true);
-  const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(true);
+  const [isRawDataOpen, setIsRawDataOpen] = useState(false);
+  const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(false);
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(true);
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-4">
@@ -68,6 +70,23 @@ const NMEADisplay = ({
             {isConnected ? 'Connected' : 'Not connected'}
           </span>
         </div>
+      </div>
+
+      <div className="border rounded-lg shadow-sm">
+        <button 
+          onClick={() => setIsDetailViewOpen(!isDetailViewOpen)}
+          className="w-full p-4 text-left font-semibold flex items-center hover:bg-gray-50"
+        >
+          <span className="mr-2">
+            {isDetailViewOpen ? <ChevronDown /> : <ChevronRight />}
+          </span>
+          NMEA Details
+        </button>
+        {isDetailViewOpen && (
+          <div className="p-4 border-t">
+            <NMEADetailView processedData={processedData} />
+          </div>
+        )}
       </div>
 
       <div className="border rounded-lg shadow-sm">
