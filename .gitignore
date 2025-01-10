@@ -1,0 +1,46 @@
+
+.vite/
+
+.claudeignore
+.claudesync/
+
+*.db
+*.db-*
+error.log
+*.swp
+
+stats.html
+
+tiles/
+*.swp
+# Dependencies
+node_modules/
+tsconfig.tsbuildinfo
+coverage/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+secrets.env
