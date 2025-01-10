@@ -1,0 +1,114 @@
+import { h } from 'preact';
+import { useState } from 'preact/hooks';
+
+// Create simple icon components using SVG directly
+const ChevronDown = () => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    stroke-width="2" 
+    stroke-linecap="round" 
+    stroke-linejoin="round"
+  >
+    <path d="m6 9 6 6 6-6"/>
+  </svg>
+);
+
+const ChevronRight = () => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    stroke-width="2" 
+    stroke-linecap="round" 
+    stroke-linejoin="round"
+  >
+    <path d="m9 18 6-6-6-6"/>
+  </svg>
+);
+
+const NMEADisplay = ({ 
+  serialData, 
+  processedData,
+  onConnect,
+  onDisconnect,
+  isConnected 
+}) => {
+  const [isRawDataOpen, setIsRawDataOpen] = useState(true);
+  const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(true);
+
+  return (
+    <div className="max-w-4xl mx-auto p-4 space-y-4">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold">NMEA Parser Test</h1>
+        
+        <div className="space-x-2">
+          <button
+            onClick={onConnect}
+            disabled={isConnected}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Connect Serial Port
+          </button>
+          <button
+            onClick={onDisconnect}
+            disabled={!isConnected}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Disconnect
+          </button>
+          <span className={`inline-block ml-2 ${isConnected ? 'text-green-600' : 'text-gray-600'}`}>
+            {isConnected ? 'Connected' : 'Not connected'}
+          </span>
+        </div>
+      </div>
+
+      <div className="border rounded-lg shadow-sm">
+        <button 
+          onClick={() => setIsProcessedDataOpen(!isProcessedDataOpen)}
+          className="w-full p-4 text-left font-semibold flex items-center hover:bg-gray-50"
+        >
+          <span className="mr-2">
+            {isProcessedDataOpen ? <ChevronDown /> : <ChevronRight />}
+          </span>
+          Processed NMEA Data
+        </button>
+        {isProcessedDataOpen && (
+          <div className="p-4 border-t">
+            <pre className="bg-blue-50 p-4 rounded-lg overflow-x-auto">
+              {JSON.stringify(processedData, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+
+      <div className="border rounded-lg shadow-sm">
+        <button 
+          onClick={() => setIsRawDataOpen(!isRawDataOpen)}
+          className="w-full p-4 text-left font-semibold flex items-center hover:bg-gray-50"
+        >
+          <span className="mr-2">
+            {isRawDataOpen ? <ChevronDown /> : <ChevronRight />}
+          </span>
+          Raw Serial Data
+        </button>
+        {isRawDataOpen && (
+          <div className="p-4 border-t">
+            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              {serialData}
+            </pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NMEADisplay;
