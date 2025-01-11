@@ -6,7 +6,9 @@ import {
   parseNmeaSentence,
 } from 'nmea-simple';
 
-interface Satellite extends GSVPacket['satellites'][0] {
+import { Satellite as GSVSatellite } from 'nmea-simple/codecs/GSV';
+
+interface Satellite extends GSVSatellite {
   constellation: string;
 }
 
@@ -28,14 +30,6 @@ export class NMEAAccumulator {
   private satellitesInUse = new Map<number, SatelliteUseInfo>();
   private readonly STALE_THRESHOLD_MS = 5000;
   
-  private getConstellation(satId: number): string {
-    if (satId >= 1 && satId <= 32) return 'GP';
-    if (satId >= 65 && satId <= 96) return 'GL';
-    if (satId >= 201 && satId <= 236) return 'GB';
-    if (satId >= 401 && satId <= 463) return 'BD';
-    return 'GP';
-  }
-
   process(sentence: string) {
     try {
       const parsed = parseNmeaSentence(sentence);
@@ -63,6 +57,10 @@ export class NMEAAccumulator {
     try {
       const talkerId = gsv.talkerId;
       const messageNumber = gsv.messageNumber;
+
+      if ( !talkerId ) {
+        return;
+      }
       
       // Get or create sequence for this talker
       let sequence = this.sequences.get(talkerId);

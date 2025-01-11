@@ -1,4 +1,3 @@
-import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import NMEADetailView from './NMEADetailView';
 
@@ -35,13 +34,21 @@ const ChevronRight = () => (
   </svg>
 );
 
+interface NMEADisplayProps {
+  serialData: string;
+  processedData: any;
+  onConnect: () => void;
+  onDisconnect: () => void;
+  isConnected: boolean;
+}
+
 const NMEADisplay = ({ 
   serialData, 
   processedData,
   onConnect,
   onDisconnect,
   isConnected 
-}) => {
+}: NMEADisplayProps) => {
   const [isRawDataOpen, setIsRawDataOpen] = useState(false);
   const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(false);
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(true);

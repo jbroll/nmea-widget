@@ -1,6 +1,6 @@
+
 export class SerialManager {
   private port: SerialPort | null = null;
-  private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   private isConnected = false;
 
   async connect(onData: (data: string) => void): Promise<void> {
@@ -34,7 +34,11 @@ export class SerialManager {
         }
       });
 
-      const readableStreamClosed = this.port.readable
+      if (!this.port.readable) {
+        throw new Error('Readable stream is undefined');
+      }
+
+      this.port.readable
         .pipeThrough(decoder)
         .pipeThrough(lineBreakTransformer)
         .pipeTo(new WritableStream({

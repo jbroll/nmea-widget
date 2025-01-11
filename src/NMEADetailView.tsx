@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 
 // Types
@@ -51,7 +51,7 @@ const getConstellationColor = (constellation: string) => {
 const VitalInfo = ({ data }: { data: ProcessedData }) => {
   if (!data.position) {
     return (
-      <div variant="destructive">
+      <div>
         <div>No Position Fix Available</div>
       </div>
     );

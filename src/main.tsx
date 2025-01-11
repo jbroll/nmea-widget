@@ -1,29 +1,26 @@
 import { render } from 'preact';
 import { NMEAAccumulator } from './NMEAAccumulator';
-import { SerialManager } from './SerialManager';
+import { SerialConnection } from './SerialConnection';
 import './globals.css';
 import NMEADisplay from './NMEADisplay';
 
-let serialManager = new SerialManager();
+let serialConnection = new SerialConnection();
 let accumulator = new NMEAAccumulator();
 let serialData = '';
 let processedData = {};
 
-function updateSerialData(data: string) {
-  const maxLines = 100;
-  const lines = serialData.split('\n');
-  lines.push(data);
-  if (lines.length > maxLines) {
-    lines.shift();
-  }
-  serialData = lines.join('\n');
-  updateUI();
-}
-
 async function connectSerial() {
   try {
-    await serialManager.connect((data: string) => {
-      updateSerialData(data);
+    serialConnection.onDebug((message) => {
+      console.log('Serial Debug:', message);
+    });
+
+    serialConnection.onError((error) => {
+      console.error('Serial Error:', error);
+    });
+
+    serialConnection.onMessage((data: string) => {
+      serialData = data;  // Just store the latest data
       
       if (data.startsWith('$')) {
         try {
@@ -31,11 +28,12 @@ async function connectSerial() {
           processedData = accumulator.getData();
         } catch (e) {
           console.error('Error processing NMEA sentence:', e);
-        } finally {
-          updateUI();
         }
+        updateUI();
       }
     });
+
+    await serialConnection.connect();
   } catch (error) {
     console.error('Serial connection error:', error);
   }
@@ -43,8 +41,8 @@ async function connectSerial() {
 
 async function disconnectSerial() {
   try {
-    if (serialManager.isPortConnected()) {
-      await serialManager.disconnect();
+    if (serialConnection.isConnected()) {
+      await serialConnection.disconnect();
     }
   } catch (error) {
     console.error('Disconnect error:', error);
@@ -60,7 +58,7 @@ function updateUI() {
       processedData={processedData}
       onConnect={connectSerial}
       onDisconnect={disconnectSerial}
-      isConnected={serialManager.isPortConnected()}
+      isConnected={serialConnection.isConnected()}
     />,
     document.getElementById('app')!
   );
@@ -71,4 +69,4 @@ updateUI();
 
 // Export for debugging
 (window as any).accumulator = accumulator;
-(window as any).serialManager = serialManager;
+(window as any).serialConnection = serialConnection;
