@@ -1,50 +1,15 @@
 export class SerialConnection {
   private port: SerialPort | null = null;
   private messageCallback: ((data: string) => void) | null = null;
-  private debugCallback: ((message: string) => void) | null = null;
-  private errorCallback: ((error: Error) => void) | null = null;
   private isReading: boolean = false;
-  private lastError: number = 0;
-  private errorCount: number = 0;
 
   // Constants
-  private static ERROR_THRESHOLD = 10;  // Max errors before notification
-  private static ERROR_RESET_TIME = 60000;  // Time to reset error count (1 minute)
   private static BAUD_RATE = 115200;
 
   public static isSupported(): boolean {
     return 'serial' in navigator;
   }
 
-  public onDebug(callback: (message: string) => void) {
-    this.debugCallback = callback;
-  }
-
-  public onError(callback: (error: Error) => void) {
-    this.errorCallback = callback;
-  }
-
-  private debug(message: string) {
-    if (this.debugCallback) {
-      this.debugCallback(message);
-    }
-  }
-
-  private handleError(error: Error) {
-    const now = Date.now();
-    this.errorCount++;
-
-    if (now - this.lastError > SerialConnection.ERROR_RESET_TIME) {
-      this.errorCount = 1;
-    }
-
-    this.lastError = now;
-    this.debug(`Error: ${error.message}`);
-
-    if (this.errorCount >= SerialConnection.ERROR_THRESHOLD && this.errorCallback) {
-      this.errorCallback(new Error(`Multiple errors occurred: ${error.message}`));
-    }
-  }
 
   public async connect(): Promise<SerialPort> {
     if (!SerialConnection.isSupported()) {
@@ -56,11 +21,7 @@ export class SerialConnection {
     }
 
     try {
-      this.debug('Requesting serial port...');
-      
       this.port = await navigator.serial.requestPort();
-
-      this.debug('Port selected. Opening connection...');
 
       await this.port.open({
         baudRate: SerialConnection.BAUD_RATE,
@@ -69,12 +30,6 @@ export class SerialConnection {
         parity: 'none',
         flowControl: 'none'
       });
-
-      this.debug('Serial connection opened');
-
-      // Reset error tracking on new connection
-      this.errorCount = 0;
-      this.lastError = 0;
 
       if (!this.port.readable) {
         throw new Error('Port readable stream is undefined');
@@ -115,29 +70,21 @@ export class SerialConnection {
         .pipeTo(new WritableStream({
           write: (line: string) => {
             if (this.isReading && this.messageCallback) {
-              this.debug(`Received data: ${line}`);
               this.messageCallback(line);
             }
           },
           abort: (reason) => {
-            this.handleError(new Error(`Stream aborted: ${reason}`));
+            console.log(new Error(`Stream aborted: ${reason}`));
           }
         }))
         .catch(error => {
-          this.handleError(error instanceof Error ? error : new Error('Stream error'));
+          console.log(error instanceof Error ? error : new Error('Stream error'));
         });
 
       return this.port;
 
     } catch (error) {
-      const errorMessage = error instanceof Error ?
-        `${error.name}: ${error.message}` :
-        'Unknown error occurred';
-      this.debug(`Connection failed: ${errorMessage}`);
-      
-      // Clean up any partial connection
       await this.cleanup();
-      
       throw error;
     }
   }
@@ -155,7 +102,7 @@ export class SerialConnection {
         try {
           await this.port.readable.cancel();
         } catch (e) {
-          this.debug(`Readable cancel failed: ${e}`);
+          // console.log(`Readable cancel failed: ${e}`);
         }
       }
       
@@ -164,7 +111,7 @@ export class SerialConnection {
         try {
           await this.port.writable.abort();
         } catch (e) {
-          this.debug(`Writable abort failed: ${e}`);
+          // console.log(`Writable abort failed: ${e}`);
         }
       }
 
@@ -172,14 +119,14 @@ export class SerialConnection {
       try {
         await this.port.forget();
       } catch (e) {
-        this.debug(`Port forget failed: ${e}`);
+        // console.log(`Port forget failed: ${e}`);
       }
 
       // Finally try to close the port
       try {
         await this.port.close();
       } catch (e) {
-        this.debug(`Port close failed: ${e}`);
+        // console.log(`Port close failed: ${e}`);
       }
 
       this.port = null;
@@ -187,10 +134,8 @@ export class SerialConnection {
   }
 
   public async disconnect() {
-    this.debug('Starting aggressive disconnect...');
     this.isReading = false;
     await this.cleanup();
-    this.debug('Disconnected from device');
   }
 
   public async sendCommand(command: string) {
@@ -203,9 +148,8 @@ export class SerialConnection {
       const writer = this.port.writable.getWriter();
       await writer.write(encoder.encode(command + '\r\n'));
       writer.releaseLock();
-      this.debug(`Sent command: ${command}`);
     } catch (error) {
-      this.handleError(error instanceof Error ? error : new Error('Write error'));
+      console.log(error instanceof Error ? error : new Error('Write error'));
       throw error;
     }
   }
