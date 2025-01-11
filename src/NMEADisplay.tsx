@@ -54,8 +54,8 @@ const NMEADisplay = ({
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(true);
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="max-w-4xl mx-auto p-2 space-y-1">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">NMEA Data</h1>
           <span className={`${isConnected ? 'text-green-600' : 'text-gray-600'}`}>
             {isConnected ? 'Connected' : 'Not connected'}
@@ -82,7 +82,7 @@ const NMEADisplay = ({
       <div className="border rounded-lg shadow-sm">
         <button 
           onClick={() => setIsDetailViewOpen(!isDetailViewOpen)}
-          className="w-full p-4 text-left font-semibold flex items-center hover:bg-gray-50"
+          className="w-full p-2 text-left font-semibold flex items-center hover:bg-gray-50"
         >
           <span className="mr-2">
             {isDetailViewOpen ? <ChevronDown /> : <ChevronRight />}
@@ -90,7 +90,7 @@ const NMEADisplay = ({
           NMEA Details
         </button>
         {isDetailViewOpen && (
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <NMEADetailView processedData={processedData} />
           </div>
         )}
@@ -99,7 +99,7 @@ const NMEADisplay = ({
       <div className="border rounded-lg shadow-sm">
         <button 
           onClick={() => setIsProcessedDataOpen(!isProcessedDataOpen)}
-          className="w-full p-4 text-left font-semibold flex items-center hover:bg-gray-50"
+          className="w-full p-2 text-left font-semibold flex items-center hover:bg-gray-50"
         >
           <span className="mr-2">
             {isProcessedDataOpen ? <ChevronDown /> : <ChevronRight />}
@@ -107,7 +107,7 @@ const NMEADisplay = ({
           Processed NMEA Data
         </button>
         {isProcessedDataOpen && (
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <pre className="bg-blue-50 p-4 rounded-lg overflow-x-auto">
               {JSON.stringify(processedData, null, 2)}
             </pre>
@@ -118,7 +118,7 @@ const NMEADisplay = ({
       <div className="border rounded-lg shadow-sm">
         <button 
           onClick={() => setIsRawDataOpen(!isRawDataOpen)}
-          className="w-full p-4 text-left font-semibold flex items-center hover:bg-gray-50"
+          className="w-full p-2 text-left font-semibold flex items-center hover:bg-gray-50"
         >
           <span className="mr-2">
             {isRawDataOpen ? <ChevronDown /> : <ChevronRight />}
@@ -126,7 +126,7 @@ const NMEADisplay = ({
           Raw Serial Data
         </button>
         {isRawDataOpen && (
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
               {serialData}
             </pre>

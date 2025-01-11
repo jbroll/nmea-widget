@@ -137,8 +137,8 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
         </svg>
 
         {/* Split legends */}
-        <div class="absolute bottom-4 left-4 bg-white bg-opacity-90 p-2 rounded shadow-sm text-sm">
-          <div>Signal:</div>
+        <div class="absolute bottom-4 left-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
+          <div class="text-center text-sm" >Signal</div>
           <div class="flex items-center">
             <span style="background-color: #22C55E" class="w-3 h-3 rounded-full mr-1" /> ≥45 dB
           </div>
@@ -153,8 +153,8 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           </div>
         </div>
 
-        <div class="absolute bottom-4 right-4 bg-white bg-opacity-90 p-2 rounded shadow-sm text-sm">
-          <div>System:</div>
+        <div class="absolute bottom-4 right-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
+          <div class="text-center text-sm" >System</div>
           <div class="flex items-center">
             <span style="background-color: #EAB308" class="w-3 h-3 rounded-full mr-1" /> GPS
           </div>
@@ -171,8 +171,8 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
 
         {/* Hover tooltip */}
         {hoveredSat && (
-          <div class="absolute top-4 right-4 bg-white p-2 rounded shadow-sm">
-            <div class="text-sm">
+          <div class="absolute top-0 right-2 bg-white p-0 bg-opacity-0 rounded shadow-sm">
+            <div class="text-xs">
               <div>PRN: {hoveredSat.prnNumber}</div>
               <div>System: {hoveredSat.constellation}</div>
               <div>Elevation: {hoveredSat.elevationDegrees.toFixed(1)}°</div>
