@@ -14,7 +14,7 @@ export const NMEAInfo = ({ data }: { data: ProcessedData }) => {
   const satellitesInUse = data.satellites.inUse.length;
 
   return (
-    <div class="p-4 bg-white rounded-lg shadow">
+    <div class="p-2 bg-white rounded-lg shadow">
       <h3 class="text-lg font-semibold mb-4">Position Information</h3>
       
       <div class="grid grid-cols-2 gap-4">

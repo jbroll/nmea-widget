@@ -12,7 +12,7 @@ interface ProcessedData {
     latitude: number;
     longitude: number;
     altitudeMeters: number;
-    quality: number;
+    fixType: number;
     satellites: number;
   } | null;
   errorStats: {
