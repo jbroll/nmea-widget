@@ -65,12 +65,17 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           ))}
 
           {/* Azimuth lines */}
-          {azimuthLines.map((azimuth, i) => (
+          {azimuthLines.map((azimuth, i) => {
+            const xy1 = polarToCartesian(75, azimuth);
+            const xy2 = polarToCartesian(10, azimuth);
+
+            return (
             <Fragment key={azimuth}>
               <line
-                x1={center}
-                y1={center}
-                {...polarToCartesian(0, azimuth)}
+                x1={xy1.x}
+                y1={xy1.y}
+                x2={xy2.x}
+                y2={xy2.y}
                 stroke="rgb(209 213 219)"
                 stroke-width="1"
               />
@@ -83,7 +88,7 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
                 {directions[i]}
               </text>
             </Fragment>
-          ))}
+          )})}
 
           {/* Satellites */}
           {data?.satellites?.visible == undefined ? null : data.satellites.visible.map((sat) => {
@@ -116,16 +121,19 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           })}
 
           {/* Ring labels */}
-          {elevationRings.map((elevation) => (
+          {elevationRings.map((elevation) => {
+            const xy = polarToCartesian(elevation, 26);
+
+            return (
             <text
               key={`label-${elevation}`}
-              x={center + 5}
-              y={center - radius * (1 - elevation / 90)}
+              x={xy.x + 5}
+              y={xy.y}
               class="text-xs fill-gray-400"
             >
               {elevation}°
             </text>
-          ))}
+          )})}
         </svg>
 
         {/* Split legends */}
