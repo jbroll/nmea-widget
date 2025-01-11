@@ -1,9 +1,8 @@
-
 export const NMEAInfo = ({ data }: { data: ProcessedData }) => {
   if (!data.position) {
     return (
-      <div>
-        <div>No Position Fix Available</div>
+      <div class="p-4 bg-white rounded-lg shadow">
+        <div class="text-center text-gray-500">No Position Fix Available</div>
       </div>
     );
   }
@@ -12,35 +11,53 @@ export const NMEAInfo = ({ data }: { data: ProcessedData }) => {
     Math.sqrt(Math.pow(data.errorStats.latitudeError, 2) + Math.pow(data.errorStats.longitudeError, 2)) : 
     null;
 
+  const satellitesInUse = data.satellites.inUse.length;
+
   return (
     <div class="p-4 bg-white rounded-lg shadow">
       <h3 class="text-lg font-semibold mb-4">Position Information</h3>
-      <div class="space-y-2 font-mono">
+      
+      <div class="grid grid-cols-2 gap-4">
+        {/* Row 1 */}
         <div>
-          <div class="text-sm text-gray-500">Latitude</div>
-          <div>{data.position.latitude.toFixed(6)}°</div>
-        </div>
-        <div>
-          <div class="text-sm text-gray-500">Longitude</div>
-          <div>{data.position.longitude.toFixed(6)}°</div>
-        </div>
-        <div>
-          <div class="text-sm text-gray-500">Altitude</div>
-          <div>{data.position.altitudeMeters.toFixed(1)} m</div>
-        </div>
-        {accuracy && (
-          <div>
-            <div class="text-sm text-gray-500">Position RMS</div>
-            <div>{accuracy.toFixed(2)} m</div>
+          <label class="block text-xs text-gray-500 font-medium mb-1">Latitude</label>
+          <div class="p-2 bg-gray-50 rounded font-mono">
+            {data.position.latitude.toFixed(6)}°
           </div>
-        )}
-        <div>
-          <div class="text-sm text-gray-500">Fix Quality</div>
-          <div>{data.position.quality}</div>
         </div>
         <div>
-          <div class="text-sm text-gray-500">Satellites Used</div>
-          <div>{data.position.satellites}</div>
+          <label class="block text-xs text-gray-500 font-medium mb-1">Longitude</label>
+          <div class="p-2 bg-gray-50 rounded font-mono">
+            {data.position.longitude.toFixed(6)}°
+          </div>
+        </div>
+
+        {/* Row 2 */}
+        <div>
+          <label class="block text-xs text-gray-500 font-medium mb-1">Altitude</label>
+          <div class="p-2 bg-gray-50 rounded font-mono">
+            {data.position.altitudeMeters.toFixed(1)} m
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 font-medium mb-1">Accuracy</label>
+          <div class="p-2 bg-gray-50 rounded font-mono">
+            {accuracy ? `${accuracy.toFixed(2)} m` : 'N/A'}
+          </div>
+        </div>
+
+        {/* Row 3 */}
+        <div>
+          <label class="block text-xs text-gray-500 font-medium mb-1">Fix Type</label>
+          <div class="p-2 bg-gray-50 rounded font-mono">
+            {data.position.fixType}
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 font-medium mb-1">Satellites</label>
+          <div class="p-2 bg-gray-50 rounded font-mono">
+            {satellitesInUse}
+          </div>
         </div>
       </div>
     </div>
