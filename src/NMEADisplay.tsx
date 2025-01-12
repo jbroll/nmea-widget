@@ -1,38 +1,6 @@
 import { useState } from 'preact/hooks';
 import NMEADetailView from './NMEADetailView';
-
-// Icon components
-const ChevronDown = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    <path d="m6 9 6 6 6-6"/>
-  </svg>
-);
-
-const ChevronRight = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    <path d="m9 18 6-6-6-6"/>
-  </svg>
-);
+import { ClipboardIcon } from './ClipboardIcon';
 
 interface NMEADisplayProps {
   serialData: string;
@@ -52,6 +20,14 @@ const NMEADisplay = ({
   const [isRawDataOpen, setIsRawDataOpen] = useState(false);
   const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(false);
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(true);
+
+  const handleCopyRawData = async () => {
+    try {
+      await navigator.clipboard.writeText(serialData);
+    } catch (err) {
+      console.error('Failed to copy raw data:', err);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-2 space-y-1">
@@ -97,15 +73,30 @@ const NMEADisplay = ({
       </div>
 
       <div className="border rounded-lg shadow-sm">
-        <button 
-          onClick={() => setIsProcessedDataOpen(!isProcessedDataOpen)}
-          className="w-full p-2 text-left font-semibold flex items-center hover:bg-gray-50"
-        >
-          <span className="mr-2">
-            {isProcessedDataOpen ? <ChevronDown /> : <ChevronRight />}
-          </span>
-          Processed NMEA Data
-        </button>
+        <div className="p-2 flex items-center justify-between hover:bg-gray-50">
+          <button 
+            onClick={() => setIsProcessedDataOpen(!isProcessedDataOpen)}
+            className="flex items-center flex-grow text-left font-semibold"
+          >
+            <span className="mr-2">
+              {isProcessedDataOpen ? <ChevronDown /> : <ChevronRight />}
+            </span>
+            Processed NMEA Data
+          </button>
+          <button
+            onClick={() => {
+              try {
+                navigator.clipboard.writeText(JSON.stringify(processedData, null, 2));
+              } catch (err) {
+                console.error('Failed to copy processed data:', err);
+              }
+            }}
+            className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Copy processed data to clipboard"
+          >
+            <ClipboardIcon size={18} />
+          </button>
+        </div>
         {isProcessedDataOpen && (
           <div className="p-2 border-t">
             <pre className="bg-blue-50 p-4 rounded-lg overflow-x-auto">
@@ -116,15 +107,24 @@ const NMEADisplay = ({
       </div>
 
       <div className="border rounded-lg shadow-sm">
-        <button 
-          onClick={() => setIsRawDataOpen(!isRawDataOpen)}
-          className="w-full p-2 text-left font-semibold flex items-center hover:bg-gray-50"
-        >
-          <span className="mr-2">
-            {isRawDataOpen ? <ChevronDown /> : <ChevronRight />}
-          </span>
-          Raw Serial Data
-        </button>
+        <div className="p-2 flex items-center justify-between hover:bg-gray-50">
+          <button 
+            onClick={() => setIsRawDataOpen(!isRawDataOpen)}
+            className="flex items-center flex-grow text-left font-semibold"
+          >
+            <span className="mr-2">
+              {isRawDataOpen ? <ChevronDown /> : <ChevronRight />}
+            </span>
+            Raw Serial Data
+          </button>
+          <button
+            onClick={handleCopyRawData}
+            className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Copy raw data to clipboard"
+          >
+            <ClipboardIcon size={18} />
+          </button>
+        </div>
         {isRawDataOpen && (
           <div className="p-2 border-t">
             <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto">

@@ -1,3 +1,5 @@
+import { ClipboardIcon } from './ClipboardIcon';
+
 export const NMEAInfo = ({ data }: { data: ProcessedData }) => {
   if (!data.position) {
     return (
@@ -13,9 +15,27 @@ export const NMEAInfo = ({ data }: { data: ProcessedData }) => {
 
   const satellitesInUse = data.satellites.inUse.length;
 
+  const handleCopyPosition = async () => {
+    try {
+      const positionText = `${data.position!.latitude.toFixed(6)},${data.position!.longitude.toFixed(6)}`;
+      await navigator.clipboard.writeText(positionText);
+    } catch (err) {
+      console.error('Failed to copy position:', err);
+    }
+  };
+
   return (
     <div class="p-2 bg-white rounded-lg shadow">
-      <h3 class="text-lg font-semibold mb-4">Position Information</h3>
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Position Information</h3>
+        <button 
+          onClick={handleCopyPosition}
+          class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Copy coordinates to clipboard"
+        >
+          <ClipboardIcon size={18} />
+        </button>
+      </div>
       
       <div class="grid grid-cols-2 gap-4">
         {/* Row 1 */}
