@@ -10,25 +10,21 @@ import { Satellite as GSVSatellite } from 'nmea-simple/codecs/GSV';
 
 interface Satellite extends GSVSatellite {
   constellation: string;
+  lastSeen: number;
 }
 
 interface SatelliteUseInfo {
   lastSeen: number;
 }
 
-interface GSVSequence {
-  expectedMessage: number;
-  messageCount: number;
-  messages: Map<number, GSVPacket>;
-}
-
 export class NMEAAccumulator {
-  private sequences = new Map<string, GSVSequence>();  // talkerId -> sequence
   private position: GGAPacket | null = null;
   private errorStats: GSTPacket | null = null;
-  private visibleSatellites = new Map<number, Satellite>();
+  private visibleSatellites = new Map<string, Satellite>(); // key: constellation-prn
   private satellitesInUse = new Map<number, SatelliteUseInfo>();
-  private readonly STALE_THRESHOLD_MS = 5000;
+  
+  // Timeout for data staleness
+  private readonly STALE_THRESHOLD_MS = 5000;  // 5 seconds for both in-use and visible
   
   process(sentence: string) {
     try {
@@ -55,68 +51,31 @@ export class NMEAAccumulator {
 
   private handleGSV(gsv: GSVPacket) {
     try {
+      const now = Date.now();
       const sequenceId = `${gsv.talkerId}-${gsv.signalId}`;
-      const messageNumber = gsv.messageNumber;
 
-      // Get or create sequence for this talker
-      let sequence = this.sequences.get(sequenceId);
-
-      // If this is message #1, start a new sequence
-      if (messageNumber === 1) {
-        sequence = {
-          expectedMessage: 1,
-          messageCount: gsv.numberOfMessages,
-          messages: new Map()
-        };
-        this.sequences.set(sequenceId, sequence);
-
-      } else if (!sequence || messageNumber !== sequence.expectedMessage) {
-        // Reject out-of-order message
-        return;
+      if (gsv.satellites) {
+        gsv.satellites.forEach(sat => {
+          if (sat.prnNumber > 0) {
+            const key = `${sequenceId}-${sat.prnNumber}`;
+            const existingSat = this.visibleSatellites.get(key);
+            
+            // Only update if SNR is valid or if the satellite doesn't exist
+            if (!existingSat || !isNaN(sat.SNRdB)) {
+              this.visibleSatellites.set(key, {
+                ...sat,
+                constellation: sequenceId,
+                lastSeen: now
+              });
+            }
+          }
+        });
       }
 
-      // Add message to sequence and increment expected message number
-      sequence.messages.set(messageNumber, gsv);
-      sequence.expectedMessage++;
-
-      // Check if sequence is complete
-      if (sequence.messages.size === sequence.messageCount) {
-        this.processCompleteSequence(sequenceId, sequence);
-        this.sequences.delete(sequenceId);
-      }
+      this.removeStaleData();
     } catch (error) {
       console.error('Error handling GSV:', error);
     }
-  }
-
-  private processCompleteSequence(sequenceId: string, sequence: GSVSequence) {
-    console.log("Processing Complete Sequence", sequenceId, sequence);
-    // Clear existing satellites for this constellation
-    this.visibleSatellites.forEach((sat, id) => {
-      if (sat.constellation === sequenceId && !isNaN(sat.SNRdB)) {
-        console.log("Clearing Satellite", sequenceId, id);
-        this.visibleSatellites.delete(id);
-      }
-    });
-
-    // Process all satellites from the complete sequence
-    for (let i = 1; i <= sequence.messageCount; i++) {
-      const msg = sequence.messages.get(i);
-      if (msg?.satellites) {
-        msg.satellites.forEach(sat => {
-          if (sat.prnNumber > 0 && !isNaN(sat.SNRdB)) {
-            console.log("Adding Satellite", sequenceId, sat);
-            this.visibleSatellites.set(sat.prnNumber, {
-              ...sat,
-              constellation: sequenceId
-            });
-          }
-        });
-      } else {
-          console.log("Missing Packet in Sequence");
-      }
-    }
-    console.log("DONE Processing Complete Sequence", sequenceId, sequence);
   }
 
   private handleGSA(gsa: GSAPacket) {
@@ -131,30 +90,41 @@ export class NMEAAccumulator {
         }
       });
 
-      this.removeStaleEntries();
+      this.removeStaleData();
     } catch (error) {
       console.error('Error handling GSA:', error);
     }
   }
 
-  private removeStaleEntries() {
+  private removeStaleData() {
     const now = Date.now();
+
+    // Remove stale satellites in use
     this.satellitesInUse.forEach((info, id) => {
       if (now - info.lastSeen > this.STALE_THRESHOLD_MS) {
         this.satellitesInUse.delete(id);
       }
     });
+
+    // Remove stale visible satellites
+    this.visibleSatellites.forEach((sat, key) => {
+      if (now - sat.lastSeen > this.STALE_THRESHOLD_MS) {
+        this.visibleSatellites.delete(key);
+      }
+    });
   }
 
   getData() {
-    this.removeStaleEntries();
+    this.removeStaleData();
     
     return {
       position: this.position,
       errorStats: this.errorStats,
       satellites: {
-        visible: Array.from(this.visibleSatellites.values()).sort((a, b) => a.prnNumber - b.prnNumber),
-        inUse: Array.from(this.satellitesInUse.keys()).sort((a, b) => a - b)
+        visible: Array.from(this.visibleSatellites.values())
+          .sort((a, b) => a.prnNumber - b.prnNumber),
+        inUse: Array.from(this.satellitesInUse.keys())
+          .sort((a, b) => a - b)
       }
     };
   }
