@@ -130,13 +130,7 @@ export function useNMEA() {
       }
     }
 
-    // Reset state
-    globalConnection = null;
-    globalAccumulator = null;
-    globalSerialData = '';
     updateGlobalState({
-      serialData: '',
-      processedData: {},
       isConnected: false,
       isConnecting: false,
       error: null
