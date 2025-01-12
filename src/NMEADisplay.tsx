@@ -67,7 +67,7 @@ const NMEADisplay = ({
             disabled={isConnected}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
           >
-            Connect Serial Port
+            Connect
           </button>
           <button
             onClick={onDisconnect}
