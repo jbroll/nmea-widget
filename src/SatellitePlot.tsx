@@ -14,9 +14,16 @@ const SIGNAL_COLORS = {
 const CONSTELLATION_COLORS = {
   GP: '#15803D', // GPS - green-700
   GL: '#B91C1C', // GLONASS - red-700
-  GB: '#1D4ED8', // Galileo - blue-700
-  BD: '#7C3AED', // BeiDou - violet-600
+  GA: '#1D4ED8', // Galileo - blue-700
+  GB: '#7C3AED', // BeiDou - violet-600
   DEFAULT: '#374151' // gray-700
+} as const;
+
+const CONSTELLATION_NAMES = {
+  GP: 'GPS',
+  GL: 'GLONASS',
+  GA: 'Galileo',
+  GB: 'BeiDou',
 } as const;
 
 const getSNRColor = (snr: number | null) => {
@@ -40,16 +47,12 @@ const SIGNAL_LEGEND = [
   { label: '<25 dB', color: SIGNAL_COLORS.WEAK }
 ] as const;
 
-// Constellation legend configuration
-const CONSTELLATION_LEGEND = [
-  { label: 'GPS', color: CONSTELLATION_COLORS.GP },
-  { label: 'GLONASS', color: CONSTELLATION_COLORS.GL },
-  { label: 'Galileo', color: CONSTELLATION_COLORS.GB },
-  { label: 'BeiDou', color: CONSTELLATION_COLORS.BD }
-] as const;
-
 export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
   const [hoveredSat, setHoveredSat] = useState<Satellite | null>(null);
+  const [enabledConstellations, setEnabledConstellations] = useState<Set<string>>(
+    new Set(Object.keys(CONSTELLATION_NAMES))
+  );
+  
   const viewBoxSize = 400;
   const center = viewBoxSize / 2;
   const radius = center - 10;
@@ -68,6 +71,26 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
       x: center + r * Math.cos(theta),
       y: center + r * Math.sin(theta)
     };
+  };
+
+  const toggleConstellation = (constellationId: string) => {
+    setEnabledConstellations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(constellationId)) {
+        newSet.delete(constellationId);
+      } else {
+        newSet.add(constellationId);
+      }
+      return newSet;
+    });
+  };
+
+  const getVisibleSatellites = () => {
+    if (!data?.satellites?.visible) return [];
+    return data.satellites.visible.filter(sat => {
+      const constId = sat.constellation.substring(0, 2);
+      return enabledConstellations.has(constId);
+    });
   };
 
   return (
@@ -120,7 +143,7 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           })}
 
           {/* Satellites */}
-          {data?.satellites?.visible == undefined ? null : data.satellites.visible.map((sat) => {
+          {getVisibleSatellites().map((sat) => {
             if (isNaN(sat.elevationDegrees) || isNaN(sat.azimuthTrue)) {
               return null;
             }
@@ -180,14 +203,20 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           ))}
         </div>
 
-        {/* Constellation legend */}
+        {/* Interactive constellation legend */}
         <div class="absolute bottom-4 right-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
           <div class="text-center text-sm">System</div>
-          {CONSTELLATION_LEGEND.map(({ label, color }) => (
-            <div key={label} class="flex items-center">
-              <span style={`background-color: ${color}`} class="w-3 h-3 rounded-full mr-1" />
+          {(Object.entries(CONSTELLATION_NAMES) as [keyof typeof CONSTELLATION_NAMES, string][]).map(([id, label]) => (
+            <label key={id} class="flex items-center cursor-pointer hover:bg-gray-50 p-0.5 rounded">
+              <input
+                type="checkbox"
+                checked={enabledConstellations.has(id)}
+                onChange={() => toggleConstellation(id)}
+                class="mr-1"
+              />
+              <span style={`background-color: ${CONSTELLATION_COLORS[id]}`} class="w-3 h-3 rounded-full mx-1" />
               {label}
-            </div>
+            </label>
           ))}
         </div>
 

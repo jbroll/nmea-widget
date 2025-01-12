@@ -34,8 +34,8 @@ let sentenceFilters: SentenceFilter = {
   'GSA': true,
   'GSV_GP': true,
   'GSV_GL': true,
-  'GSV_GB': true,
-  'GSV_BD': true
+  'GSV_GA': true,
+  'GSV_GB': true
 };
 
 const MAX_SERIAL_LINES = 100;
