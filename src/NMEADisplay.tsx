@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import NMEADetailView from './NMEADetailView';
-import { ClipboardIcon } from './ClipboardIcon';
+import { CopyToClipboard } from './CopyToClipboard';
+import { ChevronDown, ChevronRight } from './ChevronIcons';
 
 interface NMEADisplayProps {
   serialData: string;
@@ -21,21 +22,16 @@ const NMEADisplay = ({
   const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(false);
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(true);
 
-  const handleCopyRawData = async () => {
-    try {
-      await navigator.clipboard.writeText(serialData);
-    } catch (err) {
-      console.error('Failed to copy raw data:', err);
-    }
-  };
+  const getProcessedData = () => JSON.stringify(processedData, null, 2);
+  const getRawData = () => serialData;
 
   return (
     <div className="max-w-4xl mx-auto p-2 space-y-1">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">NMEA Data</h1>
-          <span className={`${isConnected ? 'text-green-600' : 'text-gray-600'}`}>
-            {isConnected ? 'Connected' : 'Not connected'}
-          </span>
+        <span className={`${isConnected ? 'text-green-600' : 'text-gray-600'}`}>
+          {isConnected ? 'Connected' : 'Not connected'}
+        </span>
         
         <div className="flex items-center space-x-2">
           <button
@@ -83,19 +79,10 @@ const NMEADisplay = ({
             </span>
             Processed NMEA Data
           </button>
-          <button
-            onClick={() => {
-              try {
-                navigator.clipboard.writeText(JSON.stringify(processedData, null, 2));
-              } catch (err) {
-                console.error('Failed to copy processed data:', err);
-              }
-            }}
-            className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          <CopyToClipboard
+            getData={getProcessedData}
             title="Copy processed data to clipboard"
-          >
-            <ClipboardIcon size={18} />
-          </button>
+          />
         </div>
         {isProcessedDataOpen && (
           <div className="p-2 border-t">
@@ -117,13 +104,10 @@ const NMEADisplay = ({
             </span>
             Raw Serial Data
           </button>
-          <button
-            onClick={handleCopyRawData}
-            className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          <CopyToClipboard
+            getData={getRawData}
             title="Copy raw data to clipboard"
-          >
-            <ClipboardIcon size={18} />
-          </button>
+          />
         </div>
         {isRawDataOpen && (
           <div className="p-2 border-t">
