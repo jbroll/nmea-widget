@@ -1,23 +1,51 @@
 import { useState } from "preact/hooks";
 import { Fragment } from "preact/jsx-runtime";
 
+// Color configuration object for signal strength
+const SIGNAL_COLORS = {
+  STRONG: '#059669',    // emerald-600 - Darker green for best contrast
+  GOOD: '#0284C7',      // sky-600 - Distinct blue
+  MODERATE: '#F59E0B',  // amber-500 - Warm yellow/orange
+  WEAK: '#DC2626',      // red-600 - Clear red for weak signals
+  UNKNOWN: '#6B7280'    // gray-500 - Neutral gray for unknown
+} as const;
+
+const CONSTELLATION_COLORS = {
+  GP: '#15803D', // GPS - green-700
+  GL: '#B91C1C', // GLONASS - red-700
+  GB: '#1D4ED8', // Galileo - blue-700
+  BD: '#7C3AED', // BeiDou - violet-600
+  DEFAULT: '#374151' // gray-700
+} as const;
+
 const getSNRColor = (snr: number | null) => {
-  if (!snr) return '#9CA3AF'; // gray-400
-  if (snr >= 45) return '#22C55E'; // green-500
-  if (snr >= 35) return '#06B6D4'; // cyan-500
-  if (snr >= 25) return '#3B82F6'; // blue-500
-  return '#EC4899'; // pink-500
+  if (!snr) return SIGNAL_COLORS.UNKNOWN;
+  if (snr >= 45) return SIGNAL_COLORS.STRONG;
+  if (snr >= 35) return SIGNAL_COLORS.GOOD;
+  if (snr >= 25) return SIGNAL_COLORS.MODERATE;
+  return SIGNAL_COLORS.WEAK;
 };
 
 const getConstellationColor = (constellation: string) => {
-  switch (constellation) {
-    case 'GP': return '#EAB308'; // yellow-500
-    case 'GL': return '#EF4444'; // red-500
-    case 'GB': return '#3B82F6'; // blue-500
-    case 'BD': return '#A855F7'; // purple-500
-    default: return '#6B7280'; // gray-500
-  }
+  return CONSTELLATION_COLORS[constellation as keyof typeof CONSTELLATION_COLORS] 
+    || CONSTELLATION_COLORS.DEFAULT;
 };
+
+// Signal strength legend configuration
+const SIGNAL_LEGEND = [
+  { label: '≥45 dB', color: SIGNAL_COLORS.STRONG },
+  { label: '≥35 dB', color: SIGNAL_COLORS.GOOD },
+  { label: '≥25 dB', color: SIGNAL_COLORS.MODERATE },
+  { label: '<25 dB', color: SIGNAL_COLORS.WEAK }
+] as const;
+
+// Constellation legend configuration
+const CONSTELLATION_LEGEND = [
+  { label: 'GPS', color: CONSTELLATION_COLORS.GP },
+  { label: 'GLONASS', color: CONSTELLATION_COLORS.GL },
+  { label: 'Galileo', color: CONSTELLATION_COLORS.GB },
+  { label: 'BeiDou', color: CONSTELLATION_COLORS.BD }
+] as const;
 
 export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
   const [hoveredSat, setHoveredSat] = useState<Satellite | null>(null);
@@ -43,7 +71,6 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
 
   return (
     <div class="relative bg-white rounded-lg shadow">
-      {/* Title positioned absolutely over plot */}
       <h3 class="absolute top-4 left-4 text-lg font-semibold z-10">Satellite View</h3>
       
       <div class="p-2">
@@ -70,30 +97,31 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
             const xy2 = polarToCartesian(10, azimuth);
 
             return (
-            <Fragment key={azimuth}>
-              <line
-                x1={xy1.x}
-                y1={xy1.y}
-                x2={xy2.x}
-                y2={xy2.y}
-                stroke="rgb(209 213 219)"
-                stroke-width="1"
-              />
-              <text
-                {...polarToCartesian(0, azimuth)}
-                text-anchor="middle"
-                dominant-baseline="middle"
-                class="text-sm fill-gray-500"
-              >
-                {directions[i]}
-              </text>
-            </Fragment>
-          )})}
+              <Fragment key={azimuth}>
+                <line
+                  x1={xy1.x}
+                  y1={xy1.y}
+                  x2={xy2.x}
+                  y2={xy2.y}
+                  stroke="rgb(209 213 219)"
+                  stroke-width="1"
+                />
+                <text
+                  {...polarToCartesian(0, azimuth)}
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class="text-sm fill-gray-500"
+                >
+                  {directions[i]}
+                </text>
+              </Fragment>
+            );
+          })}
 
           {/* Satellites */}
           {data?.satellites?.visible == undefined ? null : data.satellites.visible.map((sat) => {
-            if ( isNaN(sat.elevationDegrees) || isNaN(sat.azimuthTrue) ) {
-                return null;
+            if (isNaN(sat.elevationDegrees) || isNaN(sat.azimuthTrue)) {
+              return null;
             }
 
             const pos = polarToCartesian(sat.elevationDegrees, sat.azimuthTrue);
@@ -110,7 +138,7 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
                   cx={pos.x}
                   cy={pos.y}
                   r="8"
-                  fill={isInUse ? getSNRColor(sat.SNRdB) : '#9CA3AF'}
+                  fill={isInUse ? getSNRColor(sat.SNRdB) : SIGNAL_COLORS.UNKNOWN}
                   stroke="white"
                   stroke-width="2"
                 />
@@ -127,50 +155,39 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           {/* Ring labels */}
           {elevationRings.map((elevation) => {
             const xy = polarToCartesian(elevation, 26);
-
             return (
-            <text
-              key={`label-${elevation}`}
-              x={xy.x + 5}
-              y={xy.y}
-              class="text-xs fill-gray-400"
-            >
-              {elevation}°
-            </text>
-          )})}
+              <text
+                key={`label-${elevation}`}
+                x={xy.x + 5}
+                y={xy.y}
+                class="text-xs fill-gray-400"
+              >
+                {elevation}°
+              </text>
+            );
+          })}
         </svg>
 
-        {/* Split legends */}
+        {/* Signal strength legend */}
         <div class="absolute bottom-4 left-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
-          <div class="text-center text-sm" >Signal</div>
-          <div class="flex items-center">
-            <span style="background-color: #22C55E" class="w-3 h-3 rounded-full mr-1" /> ≥45 dB
-          </div>
-          <div class="flex items-center">
-            <span style="background-color: #06B6D4" class="w-3 h-3 rounded-full mr-1" /> ≥35 dB
-          </div>
-          <div class="flex items-center">
-            <span style="background-color: #3B82F6" class="w-3 h-3 rounded-full mr-1" /> ≥25 dB
-          </div>
-          <div class="flex items-center">
-            <span style="background-color: #EC4899" class="w-3 h-3 rounded-full mr-1" /> &lt;25 dB
-          </div>
+          <div class="text-center text-sm">Signal</div>
+          {SIGNAL_LEGEND.map(({ label, color }) => (
+            <div key={label} class="flex items-center">
+              <span style={`background-color: ${color}`} class="w-3 h-3 rounded-full mr-1" />
+              {label}
+            </div>
+          ))}
         </div>
 
+        {/* Constellation legend */}
         <div class="absolute bottom-4 right-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
-          <div class="text-center text-sm" >System</div>
-          <div class="flex items-center">
-            <span style="background-color: #EAB308" class="w-3 h-3 rounded-full mr-1" /> GPS
-          </div>
-          <div class="flex items-center">
-            <span style="background-color: #EF4444" class="w-3 h-3 rounded-full mr-1" /> GLONASS
-          </div>
-          <div class="flex items-center">
-            <span style="background-color: #3B82F6" class="w-3 h-3 rounded-full mr-1" /> Galileo
-          </div>
-          <div class="flex items-center">
-            <span style="background-color: #A855F7" class="w-3 h-3 rounded-full mr-1" /> BeiDou
-          </div>
+          <div class="text-center text-sm">System</div>
+          {CONSTELLATION_LEGEND.map(({ label, color }) => (
+            <div key={label} class="flex items-center">
+              <span style={`background-color: ${color}`} class="w-3 h-3 rounded-full mr-1" />
+              {label}
+            </div>
+          ))}
         </div>
 
         {/* Hover tooltip */}
