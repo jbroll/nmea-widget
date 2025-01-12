@@ -55,15 +55,11 @@ export class NMEAAccumulator {
 
   private handleGSV(gsv: GSVPacket) {
     try {
-      const talkerId = gsv.talkerId;
+      const sequenceId = `${gsv.talkerId}-${gsv.signalId}`;
       const messageNumber = gsv.messageNumber;
 
-      if ( !talkerId ) {
-        return;
-      }
-      
       // Get or create sequence for this talker
-      let sequence = this.sequences.get(talkerId);
+      let sequence = this.sequences.get(sequenceId);
 
       // If this is message #1, start a new sequence
       if (messageNumber === 1) {
@@ -72,7 +68,7 @@ export class NMEAAccumulator {
           messageCount: gsv.numberOfMessages,
           messages: new Map()
         };
-        this.sequences.set(talkerId, sequence);
+        this.sequences.set(sequenceId, sequence);
 
       } else if (!sequence || messageNumber !== sequence.expectedMessage) {
         // Reject out-of-order message
@@ -85,18 +81,20 @@ export class NMEAAccumulator {
 
       // Check if sequence is complete
       if (sequence.messages.size === sequence.messageCount) {
-        this.processCompleteSequence(talkerId, sequence);
-        this.sequences.delete(talkerId);
+        this.processCompleteSequence(sequenceId, sequence);
+        this.sequences.delete(sequenceId);
       }
     } catch (error) {
       console.error('Error handling GSV:', error);
     }
   }
 
-  private processCompleteSequence(talkerId: string, sequence: GSVSequence) {
+  private processCompleteSequence(sequenceId: string, sequence: GSVSequence) {
+    console.log("Processing Complete Sequence", sequenceId, sequence);
     // Clear existing satellites for this constellation
     this.visibleSatellites.forEach((sat, id) => {
-      if (sat.constellation === talkerId) {
+      if (sat.constellation === sequenceId && !isNaN(sat.SNRdB)) {
+        console.log("Clearing Satellite", sequenceId, id);
         this.visibleSatellites.delete(id);
       }
     });
@@ -106,10 +104,11 @@ export class NMEAAccumulator {
       const msg = sequence.messages.get(i);
       if (msg?.satellites) {
         msg.satellites.forEach(sat => {
-          if (sat && sat.prnNumber && sat.prnNumber > 0 ) {
+          if (sat.prnNumber > 0 && !isNaN(sat.SNRdB)) {
+            console.log("Adding Satellite", sequenceId, sat);
             this.visibleSatellites.set(sat.prnNumber, {
               ...sat,
-              constellation: talkerId
+              constellation: sequenceId
             });
           }
         });
@@ -117,6 +116,7 @@ export class NMEAAccumulator {
           console.log("Missing Packet in Sequence");
       }
     }
+    console.log("DONE Processing Complete Sequence", sequenceId, sequence);
   }
 
   private handleGSA(gsa: GSAPacket) {

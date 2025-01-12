@@ -28,7 +28,7 @@ const getSNRColor = (snr: number | null) => {
 };
 
 const getConstellationColor = (constellation: string) => {
-  return CONSTELLATION_COLORS[constellation as keyof typeof CONSTELLATION_COLORS] 
+  return CONSTELLATION_COLORS[constellation.substring(0, 2) as keyof typeof CONSTELLATION_COLORS] 
     || CONSTELLATION_COLORS.DEFAULT;
 };
 
