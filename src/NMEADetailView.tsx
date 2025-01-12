@@ -1,3 +1,4 @@
+import { ProcessedData } from './nmea-types';
 import { NMEAInfo } from './NMEAInfo';
 import { SatellitePlot } from './SatellitePlot';
 

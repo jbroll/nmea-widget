@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
 import { Fragment } from "preact/jsx-runtime";
+import { ProcessedData, Satellite } from "./nmea-types";
 
 // Color configuration object for signal strength
 const SIGNAL_COLORS = {

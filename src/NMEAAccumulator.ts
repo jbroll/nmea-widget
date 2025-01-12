@@ -106,10 +106,7 @@ export class NMEAAccumulator {
       const msg = sequence.messages.get(i);
       if (msg?.satellites) {
         msg.satellites.forEach(sat => {
-          if (sat && sat.prnNumber && sat.prnNumber > 0 // &&
-            // !Number.isNaN(sat.elevationDegrees) && 
-            // !Number.isNaN(sat.azimuthTrue)
-            ) {
+          if (sat && sat.prnNumber && sat.prnNumber > 0 ) {
             this.visibleSatellites.set(sat.prnNumber, {
               ...sat,
               constellation: talkerId

@@ -1,4 +1,5 @@
 import { CopyToClipboard } from './CopyToClipboard';
+import { ProcessedData } from './nmea-types';
 
 export const NMEAInfo = ({ data }: { data: ProcessedData }) => {
   if (!data.position) {

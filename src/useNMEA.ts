@@ -10,6 +10,10 @@ export interface NMEAState {
   error: string | null;
 }
 
+interface SentenceFilter {
+  [key: string]: boolean;
+}
+
 // Keep singleton state to share across hook instances
 let globalConnection: SerialConnection | null = null;
 let globalAccumulator: NMEAAccumulator | null = null;
@@ -23,7 +27,38 @@ let globalState: NMEAState = {
 };
 let listeners = new Set<(state: NMEAState) => void>();
 
+// Initialize filters with default values
+let sentenceFilters: SentenceFilter = {
+  'GGA': true,
+  'GST': true,
+  'GSA': true,
+  'GSV_GP': true,
+  'GSV_GL': true,
+  'GSV_GB': true,
+  'GSV_BD': true
+};
+
 const MAX_SERIAL_LINES = 100;
+
+const shouldShowSentence = (sentence: string): boolean => {
+  if (!sentence.startsWith('$')) return false;
+  
+  const parts = sentence.split(',');
+  if (parts.length < 1) return false;
+  
+  const header = parts[0].substring(1); // Remove $
+  const messageType = header.substring(2); // Get message type (after talker ID)
+  const talkerId = header.substring(0, 2); // Get talker ID
+  
+  // Special handling for GSV messages
+  if (messageType === 'GSV') {
+    const filterId = `GSV_${talkerId}`;
+    return sentenceFilters[filterId] ?? false;
+  }
+  
+  // Regular message types
+  return sentenceFilters[messageType] ?? false;
+};
 
 export function useNMEA() {
   const [state, setState] = useState<NMEAState>(globalState);
@@ -35,6 +70,7 @@ export function useNMEA() {
       connect: () => {},
       disconnect: () => {},
       sendCommand: () => {},
+      setFilter: () => {},
       isSupported: false
     };
   }
@@ -58,6 +94,8 @@ export function useNMEA() {
   }, []);
 
   const updateSerialData = useCallback((data: string) => {
+    if (!shouldShowSentence(data)) return;
+
     const lines = globalSerialData.split('\n');
     lines.push(data);
     if (lines.length > MAX_SERIAL_LINES) {
@@ -65,6 +103,14 @@ export function useNMEA() {
     }
     globalSerialData = lines.join('\n');
     updateGlobalState({ serialData: globalSerialData });
+  }, []);
+
+  const setFilter = useCallback((sentenceType: string, enabled: boolean) => {
+    sentenceFilters[sentenceType] = enabled;
+    
+    // Clear existing data when filter changes
+    globalSerialData = '';
+    updateGlobalState({ serialData: '' });
   }, []);
 
   const connect = useCallback(async () => {
@@ -90,7 +136,6 @@ export function useNMEA() {
       if (!globalAccumulator) {
         globalAccumulator = new NMEAAccumulator();
       }
-
 
       // Set up message handling
       globalConnection.onMessage((data: string) => {
@@ -130,10 +175,11 @@ export function useNMEA() {
       }
     }
 
+    // Keep all the accumulated data!
     updateGlobalState({
       isConnected: false,
       isConnecting: false,
-      error: null
+      error: null,
     });
   }, []);
 
@@ -162,6 +208,7 @@ export function useNMEA() {
     connect,
     disconnect,
     sendCommand,
+    setFilter,
     isSupported: true
   };
 }

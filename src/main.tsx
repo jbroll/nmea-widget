@@ -10,6 +10,7 @@ function App() {
     isConnected,
     connect,
     disconnect,
+    setFilter,
     isSupported
   } = useNMEA();
 
@@ -19,6 +20,7 @@ function App() {
       processedData={processedData}
       onConnect={connect}
       onDisconnect={disconnect}
+      onFilterChange={setFilter}
       isConnected={isConnected}
       isSupported={isSupported}
     />

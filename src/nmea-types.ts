@@ -1,5 +1,5 @@
 
-interface Satellite {
+export interface Satellite {
   prnNumber: number;
   elevationDegrees: number;
   azimuthTrue: number;
@@ -7,7 +7,7 @@ interface Satellite {
   constellation: string;
 }
 
-interface ProcessedData {
+export interface ProcessedData {
   position: {
     latitude: number;
     longitude: number;

@@ -2,30 +2,107 @@ import { useState } from 'preact/hooks';
 import NMEADetailView from './NMEADetailView';
 import { CopyToClipboard } from './CopyToClipboard';
 import { ChevronDown, ChevronRight } from './ChevronIcons';
+import { DropdownMenu, MenuItem } from './DropdownMenu';
+import type { ProcessedData } from './nmea-types';
 
 interface NMEADisplayProps {
   serialData: string;
-  processedData: any;
+  processedData: ProcessedData;
   onConnect: () => void;
   onDisconnect: () => void;
+  onFilterChange: (sentenceType: string, enabled: boolean) => void;
   isConnected: boolean;
   isSupported: boolean;
 }
+
+const initialFilterItems: MenuItem[] = [
+  {
+    id: 'GGA',
+    type: 'checkbox',
+    label: 'GGA - Global Positioning Fix',
+    checked: true
+  },
+  {
+    id: 'GST',
+    type: 'checkbox',
+    label: 'GST - Position Error Statistics',
+    checked: true
+  },
+  {
+    id: 'GSA',
+    type: 'checkbox',
+    label: 'GSA - Active Satellites',
+    checked: true
+  },
+  {
+    id: 'GSV',
+    type: 'label',
+    label: 'GSV - Satellites in View',
+    children: [
+      {
+        id: 'GSV_GP',
+        type: 'checkbox',
+        label: 'GPS',
+        checked: true
+      },
+      {
+        id: 'GSV_GL',
+        type: 'checkbox',
+        label: 'GLONASS',
+        checked: true
+      },
+      {
+        id: 'GSV_GB',
+        type: 'checkbox',
+        label: 'Galileo',
+        checked: true
+      },
+      {
+        id: 'GSV_BD',
+        type: 'checkbox',
+        label: 'BeiDou',
+        checked: true
+      }
+    ]
+  }
+];
 
 const NMEADisplay = ({ 
   serialData, 
   processedData,
   onConnect,
   onDisconnect,
+  onFilterChange,
   isConnected,
   isSupported
 }: NMEADisplayProps) => {
   const [isRawDataOpen, setIsRawDataOpen] = useState(false);
   const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(false);
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(true);
+  const [filterItems, setFilterItems] = useState<MenuItem[]>(initialFilterItems);
 
   const getProcessedData = () => JSON.stringify(processedData, null, 2);
   const getRawData = () => serialData;
+
+  const updateFilterItem = (items: MenuItem[], itemId: string, checked: boolean): MenuItem[] => {
+    return items.map(item => {
+      if (item.id === itemId) {
+        return { ...item, checked };
+      }
+      if (item.children) {
+        return {
+          ...item,
+          children: updateFilterItem(item.children, itemId, checked)
+        };
+      }
+      return item;
+    });
+  };
+
+  const handleFilterChange = (itemId: string, checked: boolean) => {
+    setFilterItems(prevItems => updateFilterItem(prevItems, itemId, checked));
+    onFilterChange(itemId, checked);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-2 space-y-1">
@@ -106,15 +183,24 @@ const NMEADisplay = ({
             </span>
             Raw Serial Data
           </button>
-          <CopyToClipboard
-            getData={getRawData}
-            title="Copy raw data to clipboard"
-          />
+          <div className="flex items-center">
+            <DropdownMenu
+              items={filterItems}
+              onChange={handleFilterChange}
+              title="Filter"
+              tooltip="Filter NMEA sentences"
+              className="mr-2"
+            />
+            <CopyToClipboard
+              getData={getRawData}
+              title="Copy raw data to clipboard"
+            />
+          </div>
         </div>
         {isRawDataOpen && (
           <div className="p-2 border-t">
             <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
-              {serialData}
+              {serialData || <span className="text-gray-500">No data available</span>}
             </pre>
           </div>
         )}
