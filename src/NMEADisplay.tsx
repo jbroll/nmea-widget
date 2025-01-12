@@ -77,7 +77,7 @@ const NMEADisplay = ({
             <span className="mr-2">
               {isProcessedDataOpen ? <ChevronDown /> : <ChevronRight />}
             </span>
-            Processed NMEA Data
+            Accumulated NMEA Data
           </button>
           <CopyToClipboard
             getData={getProcessedData}
