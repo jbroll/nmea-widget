@@ -92,6 +92,10 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
 
           {/* Satellites */}
           {data?.satellites?.visible == undefined ? null : data.satellites.visible.map((sat) => {
+            if ( isNaN(sat.elevationDegrees) || isNaN(sat.azimuthTrue) ) {
+                return null;
+            }
+
             const pos = polarToCartesian(sat.elevationDegrees, sat.azimuthTrue);
             const isInUse = data.satellites.inUse.includes(sat.prnNumber);
 
