@@ -137,15 +137,15 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r="8"
+                  r="5"
                   fill={isInUse ? getSNRColor(sat.SNRdB) : SIGNAL_COLORS.UNKNOWN}
                   stroke="white"
-                  stroke-width="2"
+                  stroke-width="0"
                 />
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r="4"
+                  r="3"
                   fill={getConstellationColor(sat.constellation)}
                 />
               </g>
