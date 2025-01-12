@@ -9,7 +9,8 @@ function App() {
     processedData,
     isConnected,
     connect,
-    disconnect
+    disconnect,
+    isSupported
   } = useNMEA();
 
   return (
@@ -19,6 +20,7 @@ function App() {
       onConnect={connect}
       onDisconnect={disconnect}
       isConnected={isConnected}
+      isSupported={isSupported}
     />
   );
 }

@@ -27,6 +27,17 @@ const MAX_SERIAL_LINES = 100;
 
 export function useNMEA() {
   const [state, setState] = useState<NMEAState>(globalState);
+  const isSupported = SerialConnection.isSupported();
+
+  if (!isSupported) {
+    return {
+      ...globalState,
+      connect: () => {},
+      disconnect: () => {},
+      sendCommand: () => {},
+      isSupported: false
+    };
+  }
 
   // Listen for state updates
   useEffect(() => {
@@ -156,6 +167,7 @@ export function useNMEA() {
     ...state,
     connect,
     disconnect,
-    sendCommand
+    sendCommand,
+    isSupported: true
   };
 }

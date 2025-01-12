@@ -9,6 +9,7 @@ interface NMEADisplayProps {
   onConnect: () => void;
   onDisconnect: () => void;
   isConnected: boolean;
+  isSupported: boolean;
 }
 
 const NMEADisplay = ({ 
@@ -16,7 +17,8 @@ const NMEADisplay = ({
   processedData,
   onConnect,
   onDisconnect,
-  isConnected 
+  isConnected,
+  isSupported
 }: NMEADisplayProps) => {
   const [isRawDataOpen, setIsRawDataOpen] = useState(false);
   const [isProcessedDataOpen, setIsProcessedDataOpen] = useState(false);
@@ -30,20 +32,20 @@ const NMEADisplay = ({
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">NMEA Data</h1>
         <span className={`${isConnected ? 'text-green-600' : 'text-gray-600'}`}>
-          {isConnected ? 'Connected' : 'Not connected'}
+          {isSupported ? (isConnected ? 'Connected' : 'Not connected') : 'WebSerial is not supported'}
         </span>
         
         <div className="flex items-center space-x-2">
           <button
             onClick={onConnect}
-            disabled={isConnected}
+            disabled={!isSupported || isConnected}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
           >
             Connect
           </button>
           <button
             onClick={onDisconnect}
-            disabled={!isConnected}
+            disabled={!isSupported || !isConnected}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
           >
             Disconnect
