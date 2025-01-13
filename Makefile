@@ -9,7 +9,7 @@ rc:
 publish:
 	TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
 	npm pkg get version
-	npm publish --tag rc --access public
+	npm publish --access public
 
 simple:
 	rm -r node_modules/nmea-simple

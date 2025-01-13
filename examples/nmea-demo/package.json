@@ -10,7 +10,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "@jbroll/nmea-widgets": "^0.0.2-rc.0",
+    "@jbroll/nmea-widgets": "^0.0.3",
     "preact": "^10.19.3",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7"
