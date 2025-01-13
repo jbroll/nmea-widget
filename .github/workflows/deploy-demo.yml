@@ -27,7 +27,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Build Main Package
+        run: npm run build
+
+      - name: Install Demo Dependencies
         run: |
           cd examples/nmea-demo
           npm install
