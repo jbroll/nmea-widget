@@ -4,9 +4,9 @@ import {
   GGAPacket,
   GSTPacket,
   parseNmeaSentence,
-} from 'nmea-simple';
+} from '@jbroll/nmea-simple';
 
-import { Satellite as GSVSatellite } from 'nmea-simple/codecs/GSV';
+import { Satellite as GSVSatellite } from '@jbroll/nmea-simple/codecs/GSV';
 
 interface Satellite extends GSVSatellite {
   constellation: string;
