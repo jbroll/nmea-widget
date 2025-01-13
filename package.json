@@ -1,18 +1,27 @@
 {
-  "name": "nmea-widgets",
-  "private": true,
+  "name": "@jbroll/nmea-widgets",
   "version": "0.0.1",
+  "description": "Modern React/Preact components for visualizing NMEA GPS data in real-time using Web Serial API",
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "peerDependencies": {
+    "preact": "^10.19.0",
+    "tailwindcss": "^3.4.0"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "nmea-simple": "file:../nmea-simple",
-    "preact": "^10.19.3",
+    "@jbroll/nmea-simple": "^3.3.2",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7"
   },
@@ -23,6 +32,30 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
-  }
+    "vite": "^5.0.8",
+    "vite-plugin-dts": "^3.7.3"
+  },
+  "keywords": [
+    "nmea",
+    "gps",
+    "serial",
+    "webserial",
+    "navigation",
+    "satellite",
+    "visualization",
+    "react",
+    "preact",
+    "component",
+    "typescript"
+  ],
+  "author": "John Roll",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbroll/nmea-widgets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jbroll/nmea-widgets/issues"
+  },
+  "homepage": "https://github.com/jbroll/nmea-widgets#readme"
 }

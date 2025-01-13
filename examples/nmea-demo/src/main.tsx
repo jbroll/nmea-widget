@@ -1,7 +1,6 @@
 import { render } from 'preact';
 import './globals.css';
-import NMEADisplay from './NMEADisplay';
-import { useNMEA } from './useNMEA';
+import { NMEADisplay, useNMEA } from '@jbroll/nmea-widgets';
 
 function App() {
   const { 
