@@ -1,6 +1,6 @@
 # NMEA Widgets
 
-A modern web application for visualizing NMEA GPS data in real-time using Web Serial API. Built with Preact, TypeScript, and Tailwind CSS.
+A modern React/Preact component library for visualizing NMEA GPS data in real-time using the Web Serial API. Built with TypeScript and Tailwind CSS.
 
 ## Features
 
@@ -11,85 +11,183 @@ A modern web application for visualizing NMEA GPS data in real-time using Web Se
   - Elevation and azimuth display
   - Satellite status (in use/visible)
 - Position information display with:
-  - Latitude/Longitude
+  - Latitude/Longitude coordinates
   - Altitude
   - Position accuracy (when GST messages available)
   - Fix type and satellite count
-- Raw NMEA data view
+- Raw NMEA data view with filtering options
 - Processed data inspection panel
 - Responsive design that works on desktop and mobile browsers
 
-## Requirements
-
-- Modern web browser with Web Serial API support (Chrome, Edge, Opera)
-- NMEA-compatible GPS device (tested with u-blox receivers)
-- Node.js 18+ and npm
-
 ## Installation
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/nmea-widgets.git
-cd nmea-widgets
+npm install @jbroll/nmea-widgets
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
-
-Or use make:
-```bash
-make build
-```
-
-The application will be available at `http://localhost:3000`
-
-## Usage
-
-1. Connect your GPS device to your computer via USB, BlueTooth or system serial port.
-2. Click the "Connect Serial Port" button in the application
-3. Select your GPS device from the port selection dialog
-4. The application will begin displaying real-time GPS data
-
-## Supported NMEA Messages
-
-The application currently supports parsing these NMEA sentence types:
-- GGA (Global Positioning System Fix Data)
-- GSA (GNSS DOP and Active Satellites)
-- GSV (GNSS Satellites in View)
-- GST (GNSS Pseudorange Error Statistics)
-
-## Development
-
-The project uses:
-- Preact for UI components
-- TypeScript for type safety
-- Tailwind CSS for styling
-- Vite for building and development
-- Web Serial API for device communication
-
-Key source files:
-- `src/NMEAAccumulator.ts` - NMEA sentence parsing and state management
-- `src/SerialConnection.ts` - Web Serial API communication
-- `src/SatellitePlot.tsx` - Satellite visualization component
-- `src/NMEAInfo.tsx` - Position information display
-- `src/useNMEA.ts` - React hook for NMEA data management
-
-## Building for Production
-
-To create a production build:
+This package has peer dependencies that you'll need to install in your project:
 
 ```bash
-npm run build
+npm install preact tailwindcss
 ```
 
-The built files will be in the `dist` directory.
+## Setup
+
+1. Configure Tailwind CSS in your project. Add the NMEA Widgets content paths to your `tailwind.config.js`:
+
+```js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@jbroll/nmea-widgets/**/*.{js,ts,jsx,tsx}"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+2. Import and initialize Tailwind CSS in your application:
+
+```css
+/* styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+## Basic Usage
+
+```tsx
+import { NMEADisplay, useNMEA } from '@jbroll/nmea-widgets';
+
+function App() {
+  const { 
+    serialData,
+    processedData,
+    isConnected,
+    connect,
+    disconnect,
+    setFilter,
+    isSupported
+  } = useNMEA();
+
+  return (
+    <NMEADisplay
+      serialData={serialData}
+      processedData={processedData}
+      onConnect={connect}
+      onDisconnect={disconnect}
+      onFilterChange={setFilter}
+      isConnected={isConnected}
+      isSupported={isSupported}
+    />
+  );
+}
+```
+
+## Components
+
+### NMEADisplay
+
+The main component that provides a complete UI for NMEA data visualization.
+
+```tsx
+import { NMEADisplay } from '@jbroll/nmea-widgets';
+
+<NMEADisplay
+  serialData={string}
+  processedData={ProcessedData}
+  onConnect={() => void}
+  onDisconnect={() => void}
+  onFilterChange={(sentenceType: string, enabled: boolean) => void}
+  isConnected={boolean}
+  isSupported={boolean}
+/>
+```
+
+### SatellitePlot
+
+A standalone component for visualizing satellite positions and signal strengths.
+
+```tsx
+import { SatellitePlot } from '@jbroll/nmea-widgets';
+
+<SatellitePlot data={processedData} />
+```
+
+### NMEAInfo
+
+Displays position information and accuracy metrics.
+
+```tsx
+import { NMEAInfo } from '@jbroll/nmea-widgets';
+
+<NMEAInfo data={processedData} />
+```
+
+### useNMEA Hook
+
+A React hook that handles Web Serial communication and NMEA data processing.
+
+```tsx
+const {
+  serialData,        // Raw NMEA sentences
+  processedData,     // Parsed and processed NMEA data
+  isConnected,       // Connection state
+  isConnecting,      // Connection in progress
+  error,             // Error state
+  connect,           // Function to initiate connection
+  disconnect,        // Function to close connection
+  sendCommand,       // Function to send commands to device
+  setFilter,         // Function to filter NMEA sentences
+  isSupported        // Whether Web Serial API is supported
+} = useNMEA();
+```
+
+## Types
+
+### ProcessedData
+
+```typescript
+interface ProcessedData {
+  position: {
+    latitude: number;
+    longitude: number;
+    altitudeMeters: number;
+    fixType: number;
+    satellites: number;
+  } | null;
+  errorStats: {
+    latitudeError: number;
+    longitudeError: number;
+    altitudeError: number;
+  } | null;
+  satellites: {
+    visible: Satellite[];
+    inUse: number[];
+  };
+}
+
+interface Satellite {
+  prnNumber: number;
+  elevationDegrees: number;
+  azimuthTrue: number;
+  SNRdB: number;
+  constellation: string;
+}
+```
+
+## Browser Support
+
+The Web Serial API is required for this library to function. Currently supported in:
+- Google Chrome (desktop)
+- Microsoft Edge (desktop)
+- Opera (desktop)
+- Chrome for Android (with flag)
 
 ## Contributing
 
@@ -101,8 +199,5 @@ MIT License - see LICENSE file for details
 
 ## Acknowledgments
 
-- Built using 
-  [nmea-simple](https://github.com/jbroll/nmea-simple) a fork of 
-  [nmea-simple](https://github.com/101100/nmea-simple) 
-  for NMEA sentence parsing
+- Uses [nmea-simple](https://github.com/jbroll/nmea-simple) for NMEA sentence parsing
 - Interface design inspired by modern GPS visualization tools
