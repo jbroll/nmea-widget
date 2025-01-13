@@ -2,6 +2,8 @@
 
 A modern React/Preact component library for visualizing NMEA GPS data in real-time using the Web Serial API. Built with TypeScript and Tailwind CSS.
 
+[Try the nmea-demo!](https://jbroll.github.io/nmea-widgets/)
+
 ## Features
 
 - Real-time NMEA sentence parsing and visualization
