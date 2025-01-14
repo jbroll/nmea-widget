@@ -2,9 +2,10 @@ import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [preact()],
-  base: '/nmea-widgets/',  // GitHub Pages repository name
+  // Use different base paths for dev and production
+  base: command === 'serve' ? '/' : '/nmea-widgets/',
   build: {
     assetsDir: 'assets',
     rollupOptions: {
@@ -15,4 +16,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))
