@@ -1,5 +1,4 @@
 import { useNMEA } from './useNMEA';
-import type { ProcessedData } from './nmea-types';
 import { NMEADataCard } from './NMEADataCard';
 import { NMEAAccumulatorCard } from './NMEAAccumulatorCard';
 import { NMEARawSerialCard } from './NMEARawSerialCard';
