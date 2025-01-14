@@ -3,13 +3,18 @@ import preact from '@preact/preset-vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [
-    preact(),
+    preact({
+      debug: mode !== 'production'
+    }),
     dts({
       insertTypesEntry: true,
     })
   ],
+  define: {
+    __DEV__: JSON.stringify(command === 'serve' || mode === 'development'),
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
@@ -17,6 +22,8 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es']
     },
+    sourcemap: true,
+    minify: mode === 'production',
     rollupOptions: {
       external: [
         'preact',
@@ -34,4 +41,4 @@ export default defineConfig({
       }
     }
   }
-});
+}));

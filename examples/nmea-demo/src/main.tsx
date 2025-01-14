@@ -1,5 +1,5 @@
 import { render } from 'preact';
+import { App } from './App';
 import './globals.css';
-import { NMEADisplay } from '@jbroll/nmea-widgets';
 
-render(<NMEADisplay />, document.getElementById('app')!);
+render(<App />, document.getElementById('app')!);
