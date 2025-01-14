@@ -27,15 +27,17 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Root Dependencies
-        run: npm install
-
-      - name: Build Main Package
-        run: npm run build
+      - name: Get Latest Package Version
+        id: get-version
+        run: |
+          LATEST_VERSION=$(npm view @jbroll/nmea-widgets version)
+          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install Demo Dependencies
         run: |
           cd examples/nmea-demo
+          # Update package.json to use latest version
+          npm pkg set dependencies.@jbroll/nmea-widgets="^${{ steps.get-version.outputs.version }}"
           npm install
 
       - name: Build Demo App

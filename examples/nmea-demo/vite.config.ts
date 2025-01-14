@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 
-// https://vitejs.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
   plugins: [preact()],
-  // Use different base paths for dev and production
   base: command === 'serve' ? '/' : '/nmea-widgets/',
+  define: {
+    __DEV__: JSON.stringify(command === 'serve' || mode === 'development'),
+  },
   build: {
+    sourcemap: true,
     assetsDir: 'assets',
     rollupOptions: {
       output: {
@@ -15,5 +17,11 @@ export default defineConfig(({ command }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
       }
     }
+  },
+  optimizeDeps: {
+    include: ['preact', 'preact/hooks', 'preact/jsx-runtime'],
+    esbuildOptions: {
+      sourcemap: true
+    }
   }
-}))
+}));

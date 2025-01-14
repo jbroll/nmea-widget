@@ -1,16 +1,17 @@
 {
-  "name": "nmea-widgets",
+  "name": "nmea-demo",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build:dev": "tsc && vite build --mode development",
+    "build": "tsc && vite build --mode production",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@jbroll/nmea-widgets": "^0.0.4-dev.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "@jbroll/nmea-widgets": "^0.0.3",
     "preact": "^10.19.3",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7"
