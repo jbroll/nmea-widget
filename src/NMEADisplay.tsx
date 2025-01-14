@@ -1,27 +1,19 @@
+import { useNMEA } from './useNMEA';
 import type { ProcessedData } from './nmea-types';
 import { NMEADataCard } from './NMEADataCard';
 import { NMEAAccumulatorCard } from './NMEAAccumulatorCard';
 import { NMEARawSerialCard } from './NMEARawSerialCard';
 
-interface NMEADisplayProps {
-  serialData: string;
-  processedData: ProcessedData;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  onFilterChange: (sentenceType: string, enabled: boolean) => void;
-  isConnected: boolean;
-  isSupported: boolean;
-}
-
-const NMEADisplay = ({ 
-  serialData, 
-  processedData,
-  onConnect,
-  onDisconnect,
-  onFilterChange,
-  isConnected,
-  isSupported
-}: NMEADisplayProps) => {
+const NMEADisplay = () => {
+  const { 
+    serialData, 
+    processedData,
+    isConnected,
+    connect,
+    disconnect,
+    setFilter,
+    isSupported
+  } = useNMEA();
 
   return (
     <div className="max-w-4xl mx-auto p-2 space-y-1">
@@ -33,14 +25,14 @@ const NMEADisplay = ({
         
         <div className="flex items-center space-x-2">
           <button
-            onClick={onConnect}
+            onClick={connect}
             disabled={!isSupported || isConnected}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
           >
             Connect
           </button>
           <button
-            onClick={onDisconnect}
+            onClick={disconnect}
             disabled={!isSupported || !isConnected}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
           >
@@ -55,7 +47,7 @@ const NMEADisplay = ({
       
       <NMEARawSerialCard 
         serialData={serialData}
-        onFilterChange={onFilterChange}
+        onFilterChange={setFilter}
       />
     </div>
   );
