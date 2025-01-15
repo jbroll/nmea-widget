@@ -1,8 +1,12 @@
 # NMEA Widgets
 
+<img align="right" src="images/NMEADisplay.png" alt="NMEA Data Display" width="400">
+
 A modern React/Preact component library for visualizing NMEA GPS data in real-time using the Web Serial API. Built with TypeScript and Tailwind CSS.
 
 [Try the nmea-demo!](https://jbroll.github.io/nmea-widgets/)
+
+<br clear="all">
 
 ## Features
 

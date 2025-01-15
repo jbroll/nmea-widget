@@ -51,10 +51,8 @@ publish-rc:
 	@$(MAKE) publish-tagged TAG=rc
 
 # Production publish
-publish: check-version
-	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-rc\.[0-9]*$$//'`; \
-	echo "Creating production version $$VERSION..."; \
-	npm version "$$VERSION"; \
-	npm run build; \
+publish:  check-version
+	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-rc\.[0-9]*$$//'`; npm version "$$VERSION";
+	npm run build;
 	cd example/nmea-demo; make build
-	npm publish --access public
+	# npm publish --access public
