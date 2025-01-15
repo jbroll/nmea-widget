@@ -55,4 +55,5 @@ publish: check-version
 	echo "Creating production version $$VERSION..."; \
 	npm version "$$VERSION"; \
 	npm run build; \
+	cd example/nmea-demo; make build
 	npm publish --access public
