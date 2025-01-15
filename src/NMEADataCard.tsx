@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { ChevronDown, ChevronRight } from './ChevronIcons';
-import NMEADetailView from './NMEADetailView';
+import { NMEADetailView } from './NMEADetailView';
 import type { ProcessedData } from './nmea-types';
 
 interface NMEADataCardProps {

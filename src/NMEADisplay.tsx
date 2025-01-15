@@ -3,7 +3,7 @@ import { NMEADataCard } from './NMEADataCard';
 import { NMEAAccumulatorCard } from './NMEAAccumulatorCard';
 import { NMEARawSerialCard } from './NMEARawSerialCard';
 
-const NMEADisplay = () => {
+export const NMEADisplay = () => {
   const { 
     serialData, 
     processedData,
@@ -52,4 +52,3 @@ const NMEADisplay = () => {
   );
 };
 
-export default NMEADisplay;

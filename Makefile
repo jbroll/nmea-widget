@@ -14,25 +14,24 @@ build-prod:
 # Version checking
 check-version:
 	@case "$(TAG)" in \
-		"dev") \
-			;; \
-		"rc") \
-			if ! npm pkg get version | tr -d '"' | grep -q ".*-dev\.[0-9]*$$"; then \
-				echo "Error: Current version must be a dev version before publishing RC"; \
-				exit 1; \
-			fi \
-			;; \
-		"") \
-			if ! npm pkg get version | tr -d '"' | grep -q ".*-rc\.[0-9]*$$"; then \
-				echo "Error: Current version must be an RC version before publishing prod"; \
-				exit 1; \
-			fi \
-			;; \
+	dev) : ;; \
+	rc) \
+		CURRENT_VERSION=`npm pkg get version | tr -d '"'`; \
+		if echo "$$CURRENT_VERSION" | grep -q ".*-\(dev\|rc\)\.[0-9]*$$"; then : ; else \
+			echo "Error: Current version must be a dev or rc version before publishing RC"; \
+			exit 1; \
+		fi;; \
+	*) \
+		CURRENT_VERSION=`npm pkg get version | tr -d '"'`; \
+		if echo "$$CURRENT_VERSION" | grep -q ".*-rc\.[0-9]*$$"; then : ; else \
+			echo "Error: Current version must be an RC version before publishing prod"; \
+			exit 1; \
+		fi;; \
 	esac
 
 # Publishing with tag
 publish-tagged: check-version
-	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-$(TAG)\.[0-9]*$$//'`; \
+	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-.*$$//'`; \
 	if npm pkg get version | tr -d '"' | grep -q ".*-$(TAG)\.[0-9]*$$"; then \
 		echo "Incrementing existing $(TAG) version..."; \
 		npm version prerelease --preid $(TAG) $(if $(filter dev,$(TAG)),--no-git-tag-version); \

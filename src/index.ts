@@ -1,6 +1,6 @@
 // Main components
 export { NMEADisplay } from './NMEADisplay';
-export { default as NMEADetailView } from './NMEADetailView';
+export { NMEADetailView } from './NMEADetailView';
 export { SatellitePlot } from './SatellitePlot';
 export { NMEAInfo } from './NMEAInfo';
 

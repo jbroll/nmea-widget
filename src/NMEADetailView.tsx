@@ -2,7 +2,7 @@ import { ProcessedData } from './nmea-types';
 import { NMEAInfo } from './NMEAInfo';
 import { SatellitePlot } from './SatellitePlot';
 
-const NMEADetailView = ({ processedData }: { processedData: ProcessedData }) => {
+export const NMEADetailView = ({ processedData }: { processedData: ProcessedData }) => {
   return (
     <div class="w-full">
       <div class="lg:grid lg:grid-cols-3 lg:gap-4 space-y-4 lg:space-y-0">
@@ -17,4 +17,3 @@ const NMEADetailView = ({ processedData }: { processedData: ProcessedData }) => 
   );
 };
 
-export default NMEADetailView;
