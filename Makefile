@@ -44,6 +44,7 @@ publish-tagged: check-version
 
 # Convenience targets
 publish-dev:
+	npm version minor
 	@$(MAKE) publish-tagged TAG=dev
 
 publish-rc:
