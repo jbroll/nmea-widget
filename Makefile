@@ -34,10 +34,10 @@ publish-tagged: check-version
 	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-.*$$//'`; \
 	if npm pkg get version | tr -d '"' | grep -q ".*-$(TAG)\.[0-9]*$$"; then \
 		echo "Incrementing existing $(TAG) version..."; \
-		npm version prerelease --preid $(TAG) $(if $(filter dev,$(TAG)),--no-git-tag-version); \
+		npm version prerelease --preid $(TAG); \
 	else \
 		echo "Converting to $(TAG) version..."; \
-		npm version "$$VERSION-$(TAG).0" $(if $(filter dev,$(TAG)),--no-git-tag-version); \
+		npm version "$$VERSION-$(TAG).0"; \
 	fi
 	npm run $(if $(filter dev,$(TAG)),build:dev,build)
 	npm publish --tag $(TAG) --access public
