@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@jbroll/nmea-widgets": "^0.1.1",
+    "@jbroll/nmea-widgets": "^0.1.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "preact": "^10.19.3",

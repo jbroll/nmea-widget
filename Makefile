@@ -12,8 +12,8 @@ rc: simple
 
 publish: simple
 	# TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
-	npm version patch
 	cd examples/nmea-demo; $(MAKE) build
+	npm version patch
 	npm publish --access public
 	echo Published $$(npm pkg get version)
 
