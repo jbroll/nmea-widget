@@ -5,12 +5,12 @@ run:
 	npm run build:dev
 
 
-rc:
+rc: simple
 	npm version prerelease --preid rc
 	npm run build:dev
 	npm publish --tag rc --access public
 
-publish:
+publish: simple
 	TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
 	npm pkg get version
 	npm publish --access public
@@ -20,4 +20,7 @@ build-dev:
 
 build-prod:
 	npm run build
+
+simple:
+	npm install $$(cd ../nmea-simple; echo @jbroll/nmea-simple@$$(npm pkg get version) --force | tr -d '"')
 
