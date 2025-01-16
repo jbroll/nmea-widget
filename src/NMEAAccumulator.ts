@@ -25,7 +25,7 @@ export class NMEAAccumulator {
   
   // Timeout for data staleness
   private readonly STALE_THRESHOLD_MS = 5000;  // 5 seconds for both in-use and visible
-  
+
   process(sentence: string) {
     try {
       const parsed = parseNmeaSentence(sentence);
@@ -52,19 +52,18 @@ export class NMEAAccumulator {
   private handleGSV(gsv: GSVPacket) {
     try {
       const now = Date.now();
-      const sequenceId = `${gsv.talkerId}-${gsv.signalId}`;
 
       if (gsv.satellites) {
         gsv.satellites.forEach(sat => {
           if (sat.prnNumber > 0) {
-            const key = `${sequenceId}-${sat.prnNumber}`;
+            const key = `${sat.prnNumber}`;
             const existingSat = this.visibleSatellites.get(key);
             
             // Only update if SNR is valid or if the satellite doesn't exist
             if (!existingSat || !isNaN(sat.SNRdB)) {
               this.visibleSatellites.set(key, {
                 ...sat,
-                constellation: sequenceId,
+                constellation: gsv.talkerId ?? '',
                 lastSeen: now
               });
             }

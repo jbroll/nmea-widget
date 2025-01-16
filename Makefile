@@ -2,7 +2,8 @@
 
 # Development server
 run:
-	npm run dev
+	npm run build:dev
+
 
 rc:
 	npm version prerelease --preid rc
@@ -13,7 +14,7 @@ publish:
 	TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
 	npm pkg get version
 	npm publish --access public
-#
+
 # Build helpers
 build-dev:
 
