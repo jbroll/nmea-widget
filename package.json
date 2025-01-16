@@ -22,7 +22,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "@jbroll/nmea-simple": "^3.3.2",
+    "@jbroll/nmea-simple": "^3.3.4-rc.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7"
   },

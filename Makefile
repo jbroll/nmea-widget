@@ -4,57 +4,19 @@
 run:
 	npm run dev
 
+rc:
+	npm version prerelease --preid rc
+	npm run build:dev
+	npm publish --tag rc --access public
+
+publish:
+	TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
+	npm pkg get version
+	npm publish --access public
+#
 # Build helpers
 build-dev:
-	npm run build:dev
 
 build-prod:
 	npm run build
 
-# Version checking
-check-version:
-	@case "$(TAG)" in \
-	dev) : ;; \
-	rc) \
-		CURRENT_VERSION=`npm pkg get version | tr -d '"'`; \
-		if echo "$$CURRENT_VERSION" | grep -q ".*-\(dev\|rc\)\.[0-9]*$$"; then : ; else \
-			echo "Error: Current version must be a dev or rc version before publishing RC"; \
-			exit 1; \
-		fi;; \
-	*) \
-		CURRENT_VERSION=`npm pkg get version | tr -d '"'`; \
-		if echo "$$CURRENT_VERSION" | grep -q ".*-rc\.[0-9]*$$"; then : ; else \
-			echo "Error: Current version must be an RC version before publishing prod"; \
-			exit 1; \
-		fi;; \
-	esac
-
-# Publishing with tag
-publish-tagged: check-version
-	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-.*$$//'`; \
-	if npm pkg get version | tr -d '"' | grep -q ".*-$(TAG)\.[0-9]*$$"; then \
-		echo "Incrementing existing $(TAG) version..."; \
-		npm version prerelease --preid $(TAG); \
-	else \
-		echo "Converting to $(TAG) version..."; \
-		npm version "$$VERSION-$(TAG).0"; \
-	fi
-	npm run $(if $(filter dev,$(TAG)),build:dev,build)
-	npm publish --tag $(TAG) --access public
-
-# Convenience targets
-publish-dev:
-	npm version minor
-	@$(MAKE) publish-tagged TAG=dev
-
-publish-rc:
-	@$(MAKE) publish-tagged TAG=rc
-
-# Production publish
-publish: check-version
-	@VERSION=`npm pkg get version | tr -d '"' | sed 's/-rc\.[0-9]*$$//'`; \
-	echo "Creating production version $$VERSION..."; \
-	npm version "$$VERSION"; \
-	npm run build; \
-	cd example/nmea-demo; make build
-	npm publish --access public
