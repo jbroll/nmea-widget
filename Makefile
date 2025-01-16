@@ -11,9 +11,11 @@ rc: simple
 	npm publish --tag rc --access public
 
 publish: simple
-	TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
-	npm pkg get version
+	# TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
+	npm version patch
+	cd examples/nmea-demo; $(MAKE) build
 	npm publish --access public
+	echo Published $$(npm pkg get version)
 
 # Build helpers
 build-dev:
