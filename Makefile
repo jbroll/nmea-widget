@@ -1,7 +1,7 @@
 .PHONY: run build-dev build-prod publish-dev publish-rc publish check-version
 
 # Development server
-run:
+run: simple
 	npm run build:dev
 
 
