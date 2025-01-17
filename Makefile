@@ -1,9 +1,8 @@
 .PHONY: run build-dev build-prod publish-dev publish-rc publish check-version
 
-# Development server
 run: simple
 	npm run build:dev
-
+	cd examples/nmea-demo; make
 
 rc: simple
 	npm version prerelease --preid rc
