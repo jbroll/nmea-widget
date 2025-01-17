@@ -2,7 +2,7 @@
 
 run: simple
 	npm run build:dev
-	cd examples/nmea-demo; make
+	cd examples/nmea-demo; npm link @jbroll/nmea-widgets; make
 
 rc: simple
 	npm version prerelease --preid rc
