@@ -1,27 +1,16 @@
 import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 
-export default defineConfig(({ command, mode }) => ({
+export default defineConfig(({ command }) => ({
   plugins: [preact()],
-  base: command === 'serve' ? '/' : '/nmea-widgets/',
-  define: {
-    __DEV__: JSON.stringify(command === 'serve' || mode === 'development'),
-  },
+  base: '/',
   build: {
     sourcemap: true,
-    assetsDir: 'assets',
-    rollupOptions: {
-      output: {
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
-      }
+    commonjsOptions: {
+      include: [/@jbroll\/nmea-widgets/, /node_modules/]
     }
   },
   optimizeDeps: {
-    include: ['preact', 'preact/hooks', 'preact/jsx-runtime'],
-    esbuildOptions: {
-      sourcemap: true
-    }
+    include: ['preact', 'preact/hooks', '@jbroll/nmea-widgets']
   }
-}));
+}))

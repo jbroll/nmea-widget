@@ -10,11 +10,7 @@
   },
   "dependencies": {
     "@jbroll/nmea-widgets": "^0.1.2",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
-    "preact": "^10.19.3",
-    "tailwind-merge": "^2.2.0",
-    "tailwindcss-animate": "^1.0.7"
+    "preact": "^10.19.3"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.9.4",
