@@ -16,7 +16,7 @@ publish: simple
 	echo Published $$(npm pkg get version)
 
 demoVersion:
-	cd examples/nmea-demo; npm pkg set dependencies.@jbroll/nmea-widgets@$(TAG)
+	cd examples/nmea-demo; npm pkg set dependencies.@jbroll/nmea-widgets=$(TAG)
 	
 
 # Build helpers
