@@ -8,6 +8,15 @@ export default defineConfig(({ command }) => ({
   base: command === 'serve' ? '/' : BASE_PATH,
   build: {
     sourcemap: true
+  },
+  resolve: {
+    dedupe: ['preact', 'preact/hooks', 'preact/jsx-runtime']
+  },
+  server: {
+    port: 3000
+  },
+  preview: {
+    port: 3000
   }
 }))
 

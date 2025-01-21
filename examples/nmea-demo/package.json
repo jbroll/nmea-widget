@@ -6,10 +6,10 @@
     "dev": "vite",
     "build:dev": "tsc && vite build --mode development",
     "build": "tsc && vite build --mode production",
-    "preview": "vite preview"
+    "preview": "vite preview --base /nmea-widgets/"
   },
   "dependencies": {
-    "@jbroll/nmea-widgets": "^0.2.0",
+    "@jbroll/nmea-widgets": "^0.2.1",
     "preact": "^10.19.3"
   },
   "devDependencies": {

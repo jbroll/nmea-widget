@@ -10,11 +10,14 @@ rc: simple
 	npm publish --tag rc --access public
 
 publish: simple
-	# TAG=$$(eval echo $$(npm pkg get version)); npm version $${TAG%%-*}
-	cd examples/nmea-demo; $(MAKE) build
-	npm version patch
-	npm publish --access public
+	npm version minor
+	TAG=$$(npm pkg get version); $(MAKE) demoVersion TAG=$$TAG
+	npm publish
 	echo Published $$(npm pkg get version)
+
+demoVersion:
+	cd examples/nmea-demo; npm pkg set dependencies.@jbroll/nmea-widgets@$(TAG)
+	
 
 # Build helpers
 build-dev:
@@ -23,5 +26,5 @@ build-prod:
 	npm run build
 
 simple:
-	npm install $$(cd ../nmea-simple; echo @jbroll/nmea-simple@$$(npm pkg get version) --force | tr -d '"')
+	npm install $$(cd ../nmea-simple; echo @jbroll/nmea-simple@$$(npm pkg get version) | tr -d '"')
 
