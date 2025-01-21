@@ -8,21 +8,28 @@ A modern React/Preact component library for visualizing NMEA GPS data in real-ti
 
 <br clear="all">
 
-
 ## Features
 
 - Real-time NMEA sentence parsing and visualization
 - Interactive satellite constellation view showing:
   - GPS, GLONASS, Galileo, and BeiDou satellites
-  - Signal strength indicators
+  - Color-coded signal strength indicators (SNR)
   - Elevation and azimuth display
   - Satellite status (in use/visible)
+  - Interactive tooltips with detailed satellite info
+  - Constellation filtering options
+  - Visibility filtering (all/in-use)
 - Position information display with:
-  - Latitude/Longitude coordinates
-  - Altitude
+  - Latitude/Longitude coordinates with copy functionality
+  - Altitude in meters
   - Position accuracy (when GST messages available)
-  - Fix type and satellite count
-- Raw NMEA data view with filtering options
+  - Fix type and active satellite count
+  - Error statistics
+- Raw NMEA data view with:
+  - Message type filtering
+  - Constellation-specific GSV filtering
+  - Collapsible interface
+  - Copy functionality
 - Processed data inspection panel
 - Responsive design that works on desktop and mobile browsers
 
@@ -69,9 +76,19 @@ export default {
 ## Basic Usage
 
 ```tsx
-import { NMEADisplay, useNMEA } from '@jbroll/nmea-widgets';
+import { NMEADisplay } from '@jbroll/nmea-widgets';
 
 function App() {
+  return <NMEADisplay />;
+}
+```
+
+For more control over the NMEA processing, you can use the `useNMEA` hook:
+
+```tsx
+import { useNMEA, NMEADetailView } from '@jbroll/nmea-widgets';
+
+function CustomDisplay() {
   const { 
     serialData,
     processedData,
@@ -83,15 +100,12 @@ function App() {
   } = useNMEA();
 
   return (
-    <NMEADisplay
-      serialData={serialData}
-      processedData={processedData}
-      onConnect={connect}
-      onDisconnect={disconnect}
-      onFilterChange={setFilter}
-      isConnected={isConnected}
-      isSupported={isSupported}
-    />
+    <div>
+      <button onClick={connect} disabled={!isSupported || isConnected}>
+        Connect
+      </button>
+      <NMEADetailView processedData={processedData} />
+    </div>
   );
 }
 ```
@@ -100,20 +114,10 @@ function App() {
 
 ### NMEADisplay
 
-The main component that provides a complete UI for NMEA data visualization.
+The main component that provides a complete UI for NMEA data visualization. Automatically manages serial connection and data processing.
 
 ```tsx
-import { NMEADisplay } from '@jbroll/nmea-widgets';
-
-<NMEADisplay
-  serialData={string}
-  processedData={ProcessedData}
-  onConnect={() => void}
-  onDisconnect={() => void}
-  onFilterChange={(sentenceType: string, enabled: boolean) => void}
-  isConnected={boolean}
-  isSupported={boolean}
-/>
+<NMEADisplay />
 ```
 
 ### SatellitePlot
@@ -126,6 +130,15 @@ import { SatellitePlot } from '@jbroll/nmea-widgets';
 <SatellitePlot data={processedData} />
 ```
 
+Features:
+- Interactive polar plot showing satellite positions
+- Color-coded signal strength indicators
+- Constellation filtering (GPS, GLONASS, Galileo, BeiDou)
+- Visibility filtering (all satellites vs in-use only)
+- Hover tooltips with detailed satellite information
+- Elevation rings and azimuth markers
+- Signal strength and constellation legends
+
 ### NMEAInfo
 
 Displays position information and accuracy metrics.
@@ -135,6 +148,14 @@ import { NMEAInfo } from '@jbroll/nmea-widgets';
 
 <NMEAInfo data={processedData} />
 ```
+
+Features:
+- Current position display (latitude, longitude)
+- Altitude information
+- Position accuracy (when available)
+- Fix type indicator
+- Active satellite count
+- Copy coordinates functionality
 
 ### useNMEA Hook
 
@@ -188,23 +209,57 @@ interface Satellite {
 }
 ```
 
+### Supported NMEA Messages
+
+The library currently supports parsing these NMEA sentence types:
+- GGA (Global Positioning System Fix Data)
+- GSA (GNSS DOP and Active Satellites)
+- GSV (GNSS Satellites in View)
+- GST (GNSS Pseudorange Error Statistics)
+
+Supported constellations:
+- GPS (GP)
+- GLONASS (GL)
+- Galileo (GA)
+- BeiDou (GB)
+
 ## Browser Support
 
 The Web Serial API is required for this library to function. Currently supported in:
-- Google Chrome (desktop)
-- Microsoft Edge (desktop)
-- Opera (desktop)
-- Chrome for Android (with flag)
+- Google Chrome (desktop) version 89+
+- Microsoft Edge (desktop) version 89+
+- Opera (desktop) version 75+
+- Chrome for Android (with flag enabled)
+
+## Development
+
+To build the library:
+
+```bash
+npm install
+npm run build
+```
+
+To run the demo application:
+
+```bash
+cd examples/nmea-demo
+npm install
+npm run dev
+```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+The project uses:
+- Preact for UI components
+- TypeScript for type safety
+- Tailwind CSS for styling
+- Vite for building and development
+- Web Serial API for device communication
+- nmea-simple for NMEA sentence parsing
+
 ## License
 
 MIT License - see LICENSE file for details
-
-## Acknowledgments
-
-- Uses [nmea-simple](https://github.com/jbroll/nmea-simple) for NMEA sentence parsing
-- Interface design inspired by modern GPS visualization tools
