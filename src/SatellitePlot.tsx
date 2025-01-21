@@ -11,6 +11,14 @@ const SIGNAL_COLORS = {
   UNKNOWN: '#6B7280'
 } as const;
 
+// Signal strength legend configuration
+const SIGNAL_LEGEND = [
+  { label: '≥45 dB', color: SIGNAL_COLORS.STRONG },
+  { label: '≥35 dB', color: SIGNAL_COLORS.GOOD },
+  { label: '≥25 dB', color: SIGNAL_COLORS.MODERATE },
+  { label: '<25 dB', color: SIGNAL_COLORS.WEAK }
+] as const;
+
 const CONSTELLATION_COLORS = {
   GP: '#15803D',
   GL: '#B91C1C',
@@ -26,7 +34,7 @@ const CONSTELLATION_NAMES = {
   GB: 'BeiDou',
 } as const;
 
-// Helper functions moved outside to prevent recreation
+// Helper functions moved ougetSNRColortside to prevent recreation
 const getSNRColor = (snr: number | null) => {
   if (!snr) return SIGNAL_COLORS.UNKNOWN;
   if (snr >= 45) return SIGNAL_COLORS.STRONG;
@@ -148,7 +156,7 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
 
   return (
     <div class="relative bg-white rounded-lg shadow">
-      {/* Filter buttons with stable handlers */}
+      {/* Filter buttons */}
       <div class="absolute top-4 left-4 z-10">
         <h3 class="text-lg font-semibold">Satellite View</h3>
         <div class="mt-2">
@@ -182,7 +190,6 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           viewBox={`0 0 ${VIEW_BOX_SIZE} ${VIEW_BOX_SIZE}`}
           class="w-full h-full"
         >
-          {/* Static elements */}
           {ELEVATION_RINGS.map((elevation, i) => (
             <Fragment key={elevation}>
               <circle
@@ -225,7 +232,7 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
             </Fragment>
           ))}
 
-          {/* Satellites with stable event handlers */}
+          {/* Satellites */}
           {visibleSatellites.map((sat) => {
             const pos = calculateSatellitePosition(sat.elevationDegrees, sat.azimuthTrue);
             const isInUse = data.satellites.inUse.includes(sat.prnNumber);
@@ -256,7 +263,7 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           })}
         </svg>
 
-        {/* Hover tooltip with memoized data */}
+        {/* Hover tooltip */}
         {hoveredSatellite && (
           <div class="absolute top-0 right-2 bg-white p-0 bg-opacity-0 rounded shadow-sm">
             <div class="text-xs">
@@ -269,7 +276,18 @@ export const SatellitePlot = ({ data }: { data: ProcessedData }) => {
           </div>
         )}
 
-        {/* Constellation toggles with stable handlers */}
+        {/* Signal strength legend */}
+        <div class="absolute bottom-4 left-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
+        <div class="text-center text-sm">Signal</div>
+          {SIGNAL_LEGEND.map(({ label, color }) => (
+            <div key={label} class="flex items-center">
+            <span style={`background-color: ${color}`} class="w-3 h-3 rounded-full mr-1" />
+              {label}
+            </div>
+          ))}
+        </div>
+
+        {/* Constellation legend w/toggles */}
         <div class="absolute bottom-4 right-4 bg-white bg-opacity-0 p-0 rounded shadow-sm text-xs">
           <div class="text-center text-sm">System</div>
           {(Object.entries(CONSTELLATION_NAMES) as [keyof typeof CONSTELLATION_NAMES, string][]).map(([id, label]) => (
