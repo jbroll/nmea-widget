@@ -9,7 +9,7 @@
     "preview": "vite preview --base /nmea-widgets/"
   },
   "dependencies": {
-    "@jbroll/nmea-widgets": "0.5.1",
+    "@jbroll/nmea-widgets": "0.5.2",
     "preact": "^10.19.3"
   },
   "devDependencies": {
