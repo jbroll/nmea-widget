@@ -1,4 +1,5 @@
 // Main components
+export { NMEAButton } from './NMEAButton';
 export { NMEADisplay } from './NMEADisplay';
 export { NMEADetailView } from './NMEADetailView';
 export { SatellitePlot } from './SatellitePlot';
