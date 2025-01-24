@@ -9,8 +9,14 @@ rc: simple
 	npm run build:dev
 	npm publish --tag rc --access public
 
-publish: simple
-	npm version minor
+patch: VTYPE=patch
+patch: publishVType
+
+publish: VTYPE=minor
+publish: publishVType
+
+publishVType: simple
+	npm version $(VTYPE)
 	TAG=$$(npm pkg get version); $(MAKE) demoVersion TAG=$$TAG
 	npm publish
 	echo Published $$(npm pkg get version)

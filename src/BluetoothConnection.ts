@@ -57,16 +57,16 @@ export class BluetoothConnection implements ConnectionInterface {
         optionalServices: [...UART_SERVICES]
       });
 
-      console.log('Attempting to connect to device:', device.name);
+      //console.log('Attempting to connect to device:', device.name);
       const gatt = await device?.gatt?.connect();
       if (!gatt) {
         throw new Error('Failed to connect to GATT server');
       }
-      console.log('Connected to GATT server');
+      //console.log('Connected to GATT server');
 
       // Log available services
       const services = await gatt.getPrimaryServices();
-      console.log('Available services:', services.map((s: BluetoothRemoteGATTService) => s.uuid));
+      //console.log('Available services:', services.map((s: BluetoothRemoteGATTService) => s.uuid));
 
       // Try to find a compatible service
       let service: BluetoothRemoteGATTService | null = null;
@@ -94,22 +94,22 @@ export class BluetoothConnection implements ConnectionInterface {
       }
 
       // Try to find TX characteristic
-      console.log('Available characteristics:', 
-        (await service.getCharacteristics()).map((c: BluetoothRemoteGATTCharacteristic) => 
-          `${c.uuid} (${Object.entries(c.properties).filter(([_k,v]) => v).map(([k]) => k).join(', ')})`
-        )
-      );
+      //console.log('Available characteristics:', 
+      //  (await service.getCharacteristics()).map((c: BluetoothRemoteGATTCharacteristic) => 
+      //    `${c.uuid} (${Object.entries(c.properties).filter(([_k,v]) => v).map(([k]) => k).join(', ')})`
+      //  )
+      //);
 
       for (const charId of TX_CHARACTERISTICS) {
         try {
-          console.log('Trying TX characteristic:', charId);
+          //console.log('Trying TX characteristic:', charId);
           this.txCharacteristic = await service.getCharacteristic(charId);
           if (this.txCharacteristic) {
-            console.log('Found TX characteristic:', charId);
+            //console.log('Found TX characteristic:', charId);
             break;
           }
         } catch (e) {
-          console.log('Failed to get TX characteristic:', charId, e);
+          //console.log('Failed to get TX characteristic:', charId, e);
           continue;
         }
       }
@@ -117,10 +117,10 @@ export class BluetoothConnection implements ConnectionInterface {
       // If no standard TX characteristic found, try to discover characteristics
       if (!this.txCharacteristic) {
         const characteristics = await service.getCharacteristics();
-        console.log('Looking for characteristic with notify property');
+        //console.log('Looking for characteristic with notify property');
         this.txCharacteristic = characteristics.find(char => char.properties.notify) || null;
         if (this.txCharacteristic) {
-          console.log('Found notify characteristic:', this.txCharacteristic.uuid);
+          //console.log('Found notify characteristic:', this.txCharacteristic.uuid);
         }
       }
 
