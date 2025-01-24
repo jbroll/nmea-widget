@@ -37,6 +37,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.9.4",
     "@types/w3c-web-serial": "^1.0.7",
+    "@types/web-bluetooth": "^0.0.20",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "preact": "^10.19.3",

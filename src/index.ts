@@ -6,8 +6,12 @@ export { NMEAInfo } from './NMEAInfo';
 
 // Core functionality
 export { SerialConnection } from './SerialConnection';
+export { BluetoothConnection } from './BluetoothConnection';
 export { NMEAAccumulator } from './NMEAAccumulator';
 export { useNMEA } from './useNMEA';
+
+// Connection types
+export type { ConnectionInterface, ConnectionType, ConnectionOptions, ConnectionSupport } from './ConnectionInterface';
 
 // Utility components
 export { CopyToClipboard } from './CopyToClipboard';

@@ -1,4 +1,6 @@
-export class SerialConnection {
+import { ConnectionInterface, ConnectionSupport } from './ConnectionInterface';
+
+export class SerialConnection implements ConnectionInterface {
   private port: SerialPort | null = null;
   private messageCallback: ((data: string) => void) | null = null;
   private isReading: boolean = false;
@@ -6,13 +8,14 @@ export class SerialConnection {
   // Constants
   private static BAUD_RATE = 115200;
 
-  public static isSupported(): boolean {
-    return 'serial' in navigator;
-  }
+  static support: ConnectionSupport = {
+    isSupported: (): boolean => {
+      return 'serial' in navigator;
+    }
+  };
 
-
-  public async connect(): Promise<SerialPort> {
-    if (!SerialConnection.isSupported()) {
+  public async connect(): Promise<void> {
+    if (!SerialConnection.support.isSupported()) {
       throw new Error('Web Serial is not supported in this browser.');
     }
 
@@ -74,14 +77,12 @@ export class SerialConnection {
             }
           },
           abort: (reason) => {
-            console.log(new Error(`Stream aborted: ${reason}`));
+            console.error(new Error(`Stream aborted: ${reason}`));
           }
         }))
         .catch(error => {
-          console.log(error instanceof Error ? error : new Error('Stream error'));
+          console.error(error instanceof Error ? error : new Error('Stream error'));
         });
-
-      return this.port;
 
     } catch (error) {
       await this.cleanup();
@@ -102,7 +103,7 @@ export class SerialConnection {
         try {
           await this.port.readable.cancel();
         } catch (e) {
-          // console.log(`Readable cancel failed: ${e}`);
+          // console.error(`Readable cancel failed: ${e}`);
         }
       }
       
@@ -111,7 +112,7 @@ export class SerialConnection {
         try {
           await this.port.writable.abort();
         } catch (e) {
-          // console.log(`Writable abort failed: ${e}`);
+          // console.error(`Writable abort failed: ${e}`);
         }
       }
 
@@ -119,14 +120,14 @@ export class SerialConnection {
       try {
         await this.port.forget();
       } catch (e) {
-        // console.log(`Port forget failed: ${e}`);
+        // console.error(`Port forget failed: ${e}`);
       }
 
       // Finally try to close the port
       try {
         await this.port.close();
       } catch (e) {
-        // console.log(`Port close failed: ${e}`);
+        // console.error(`Port close failed: ${e}`);
       }
 
       this.port = null;
@@ -149,7 +150,7 @@ export class SerialConnection {
       await writer.write(encoder.encode(command + '\r\n'));
       writer.releaseLock();
     } catch (error) {
-      console.log(error instanceof Error ? error : new Error('Write error'));
+      console.error(error instanceof Error ? error : new Error('Write error'));
       throw error;
     }
   }

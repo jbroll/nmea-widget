@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { SerialConnection } from './SerialConnection';
+import { BluetoothConnection } from './BluetoothConnection';
 import { NMEAAccumulator } from './NMEAAccumulator';
+import { ConnectionInterface, ConnectionType } from './ConnectionInterface';
 
 export interface NMEAState {
   serialData: string;
@@ -15,7 +17,7 @@ interface SentenceFilter {
 }
 
 // Keep singleton state to share across hook instances
-let globalConnection: SerialConnection | null = null;
+let globalConnection: ConnectionInterface | null = null;
 let globalAccumulator: NMEAAccumulator | null = null;
 let globalSerialData = '';
 let globalState: NMEAState = {
@@ -62,18 +64,6 @@ const shouldShowSentence = (sentence: string): boolean => {
 
 export function useNMEA() {
   const [state, setState] = useState<NMEAState>(globalState);
-  const isSupported = SerialConnection.isSupported();
-
-  if (!isSupported) {
-    return {
-      ...globalState,
-      connect: () => {},
-      disconnect: () => {},
-      sendCommand: () => {},
-      setFilter: () => {},
-      isSupported: false
-    };
-  }
 
   // Listen for state updates
   useEffect(() => {
@@ -113,25 +103,30 @@ export function useNMEA() {
     updateGlobalState({ serialData: '' });
   }, []);
 
-  const connect = useCallback(async () => {
+  const getConnection = (type: ConnectionType): ConnectionInterface => {
+    switch (type) {
+      case 'serial':
+        return new SerialConnection();
+      case 'bluetooth':
+        return new BluetoothConnection();
+      default:
+        throw new Error(`Unsupported connection type: ${type}`);
+    }
+  };
+
+  const connect = useCallback(async (type: ConnectionType) => {
     if (state.isConnected) {
-      if (window.confirm('Device is already connected. Would you like to disconnect?')) {
-        await disconnect();
-        return;
-      }
+      await disconnect();
       return;
     }
 
-    if (state.isConnecting) {
-      return;
-    }
+    if (state.isConnecting) return;
 
     updateGlobalState({ isConnecting: true, error: null });
 
     try {
-      // Initialize managers if needed
       if (!globalConnection) {
-        globalConnection = new SerialConnection();
+        globalConnection = getConnection(type);
       }
       if (!globalAccumulator) {
         globalAccumulator = new NMEAAccumulator();
@@ -175,7 +170,8 @@ export function useNMEA() {
       }
     }
 
-    // Keep all the accumulated data!
+    // Reset connection but keep accumulated data
+    globalConnection = null;
     updateGlobalState({
       isConnected: false,
       isConnecting: false,
@@ -209,6 +205,7 @@ export function useNMEA() {
     disconnect,
     sendCommand,
     setFilter,
-    isSupported: true
+    serialSupported: SerialConnection.support.isSupported(),
+    bluetoothSupported: BluetoothConnection.support.isSupported()
   };
 }
