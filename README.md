@@ -2,7 +2,7 @@
 
 <img align="right" src="images/NMEADisplay.png" alt="NMEA Data Display" width="400">
 
-A modern React/Preact component library for visualizing NMEA GPS data in real-time using the Web Serial API. Built with TypeScript and Tailwind CSS.
+A modern React/Preact component library for visualizing NMEA GPS data in real-time using Web Serial and Web Bluetooth APIs. Built with TypeScript and Tailwind CSS.
 
 [Try the nmea-demo!](https://jbroll.github.io/nmea-widgets/)
 
@@ -10,6 +10,9 @@ A modern React/Preact component library for visualizing NMEA GPS data in real-ti
 
 ## Features
 
+- Multiple connection options:
+  - Web Serial API for USB and serial port connections
+  - Web Bluetooth API for Bluetooth Low Energy (BLE) UART devices
 - Real-time NMEA sentence parsing and visualization
 - Interactive satellite constellation view showing:
   - GPS, GLONASS, Galileo, and BeiDou satellites
@@ -96,13 +99,17 @@ function CustomDisplay() {
     connect,
     disconnect,
     setFilter,
-    isSupported
+    serialSupported,
+    bluetoothSupported
   } = useNMEA();
 
   return (
     <div>
-      <button onClick={connect} disabled={!isSupported || isConnected}>
-        Connect
+      <button onClick={() => connect('serial')} disabled={!serialSupported || isConnected}>
+        Connect Serial
+      </button>
+      <button onClick={() => connect('bluetooth')} disabled={!bluetoothSupported || isConnected}>
+        Connect Bluetooth
       </button>
       <NMEADetailView processedData={processedData} />
     </div>
@@ -114,7 +121,7 @@ function CustomDisplay() {
 
 ### NMEADisplay
 
-The main component that provides a complete UI for NMEA data visualization. Automatically manages serial connection and data processing.
+The main component that provides a complete UI for NMEA data visualization. Automatically manages serial/bluetooth connection and data processing.
 
 ```tsx
 <NMEADisplay />
@@ -159,7 +166,7 @@ Features:
 
 ### useNMEA Hook
 
-A React hook that handles Web Serial communication and NMEA data processing.
+A React hook that handles Web Serial/Bluetooth communication and NMEA data processing.
 
 ```tsx
 const {
@@ -168,11 +175,12 @@ const {
   isConnected,       // Connection state
   isConnecting,      // Connection in progress
   error,             // Error state
-  connect,           // Function to initiate connection
+  connect,           // Function to initiate connection (type: 'serial' | 'bluetooth')
   disconnect,        // Function to close connection
   sendCommand,       // Function to send commands to device
   setFilter,         // Function to filter NMEA sentences
-  isSupported        // Whether Web Serial API is supported
+  serialSupported,   // Whether Web Serial API is supported
+  bluetoothSupported // Whether Web Bluetooth API is supported
 } = useNMEA();
 ```
 
@@ -225,11 +233,25 @@ Supported constellations:
 
 ## Browser Support
 
-The Web Serial API is required for this library to function. Currently supported in:
+### Web Serial API
 - Google Chrome (desktop) version 89+
 - Microsoft Edge (desktop) version 89+
 - Opera (desktop) version 75+
 - Chrome for Android (with flag enabled)
+
+### Web Bluetooth API
+- Google Chrome (desktop) version 56+
+- Microsoft Edge (desktop) version 79+
+- Opera (desktop) version 43+
+- Chrome for Android version 56+
+- Samsung Internet version 6.0+
+
+### Bluetooth Device Compatibility
+The library supports various UART/Serial over Bluetooth LE services including:
+- Nordic UART (UUID: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E)
+- Legacy UART (UUID: 0000FEFB-0000-1000-8000-00805F9B34FB)
+- Microchip UART (UUID: 49535343-FE7D-4AE5-8FA9-9FAFD205E455)
+- HM-10 UART (UUID: 0000FFE0-0000-1000-8000-00805F9B34FB)
 
 ## Development
 
@@ -257,7 +279,8 @@ The project uses:
 - TypeScript for type safety
 - Tailwind CSS for styling
 - Vite for building and development
-- Web Serial API for device communication
+- Web Serial API for USB/serial communication
+- Web Bluetooth API for BLE communication
 - nmea-simple for NMEA sentence parsing
 
 ## License
