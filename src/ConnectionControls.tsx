@@ -6,17 +6,21 @@ interface ConnectionControlsProps {
   isConnecting: boolean;
   onConnect: (type: ConnectionType) => void;
   onDisconnect: () => void;
-  serialSupported: boolean;
-  bluetoothSupported: boolean;
+  supportedTypes: ConnectionType[];
 }
+
+const CONNECTION_LABELS: Record<ConnectionType, string> = {
+  serial: 'Serial Port',
+  bluetooth: 'Bluetooth',
+  geolocation: 'Browser Location'
+};
 
 export const ConnectionControls = ({ 
   isConnected, 
   isConnecting,
   onConnect,
   onDisconnect,
-  serialSupported,
-  bluetoothSupported
+  supportedTypes
 }: ConnectionControlsProps) => {
   const [showOptions, setShowOptions] = useState(false);
 
@@ -26,11 +30,8 @@ export const ConnectionControls = ({
       return;
     }
 
-    // If only one connection type is supported, use it directly
-    if (serialSupported && !bluetoothSupported) {
-      onConnect('serial');
-    } else if (bluetoothSupported && !serialSupported) {
-      onConnect('bluetooth');
+    if (supportedTypes.length === 1) {
+      onConnect(supportedTypes[0]);
     } else {
       setShowOptions(true);
     }
@@ -41,14 +42,14 @@ export const ConnectionControls = ({
       <div class="flex items-center space-x-2">
         <button
           onClick={handleConnect}
-          disabled={!serialSupported && !bluetoothSupported || isConnecting}
+          disabled={supportedTypes.length === 0 || isConnecting}
           class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
         >
           {isConnected ? 'Disconnect' : 'Connect'}
         </button>
         
         <span class={`${isConnected ? 'text-green-600' : 'text-gray-600'}`}>
-          {!serialSupported && !bluetoothSupported ? 
+          {supportedTypes.length === 0 ? 
             'No connection methods available' : 
             (isConnected ? 'Connected' : 'Not connected')}
         </span>
@@ -56,28 +57,18 @@ export const ConnectionControls = ({
 
       {showOptions && !isConnected && (
         <div class="absolute top-12 left-0 w-48 bg-white rounded-md shadow-lg z-10 p-2">
-          {serialSupported && (
+          {supportedTypes.map(type => (
             <button
+              key={type}
               onClick={() => {
-                onConnect('serial');
+                onConnect(type);
                 setShowOptions(false);
               }}
               class="w-full px-4 py-2 text-left hover:bg-gray-100 rounded"
             >
-              Serial Port
+              {CONNECTION_LABELS[type]}
             </button>
-          )}
-          {bluetoothSupported && (
-            <button
-              onClick={() => {
-                onConnect('bluetooth');
-                setShowOptions(false);
-              }}
-              class="w-full px-4 py-2 text-left hover:bg-gray-100 rounded"
-            >
-              Bluetooth
-            </button>
-          )}
+          ))}
         </div>
       )}
       

@@ -10,7 +10,12 @@ export interface ConnectionInterface {
   sendCommand(command: string): Promise<void>;
 }
 
-export type ConnectionType = 'serial' | 'bluetooth';
+export interface ConnectionConstructor {
+  new(): ConnectionInterface;
+  support: ConnectionSupport;
+}
+
+export type ConnectionType = 'serial' | 'bluetooth' | 'geolocation';
 
 export interface ConnectionOptions {
   type: ConnectionType;

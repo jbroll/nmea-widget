@@ -7,6 +7,8 @@ export { NMEAInfo } from './NMEAInfo';
 // Core functionality
 export { SerialConnection } from './SerialConnection';
 export { BluetoothConnection } from './BluetoothConnection';
+export { GeoLocationConnection } from './GeoLocationConnection';
+export { ConnectionFactory } from './ConnectionFactory';
 export { NMEAAccumulator } from './NMEAAccumulator';
 export { useNMEA } from './useNMEA';
 

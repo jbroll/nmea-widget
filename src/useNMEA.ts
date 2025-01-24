@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
-import { SerialConnection } from './SerialConnection';
-import { BluetoothConnection } from './BluetoothConnection';
-import { NMEAAccumulator } from './NMEAAccumulator';
 import { ConnectionInterface, ConnectionType } from './ConnectionInterface';
+import { ConnectionFactory } from './ConnectionFactory';
+import { NMEAAccumulator } from './NMEAAccumulator';
 
 export interface NMEAState {
   serialData: string;
@@ -10,6 +9,7 @@ export interface NMEAState {
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
+  supportedTypes: ConnectionType[];
 }
 
 interface SentenceFilter {
@@ -25,7 +25,8 @@ let globalState: NMEAState = {
   processedData: {},
   isConnected: false,
   isConnecting: false,
-  error: null
+  error: null,
+  supportedTypes: []
 };
 let listeners = new Set<(state: NMEAState) => void>();
 
@@ -63,7 +64,10 @@ const shouldShowSentence = (sentence: string): boolean => {
 };
 
 export function useNMEA() {
-  const [state, setState] = useState<NMEAState>(globalState);
+  const [state, setState] = useState<NMEAState>({
+    ...globalState,
+    supportedTypes: ConnectionFactory.getSupportedTypes()
+  });
 
   // Listen for state updates
   useEffect(() => {
@@ -103,17 +107,6 @@ export function useNMEA() {
     updateGlobalState({ serialData: '' });
   }, []);
 
-  const getConnection = (type: ConnectionType): ConnectionInterface => {
-    switch (type) {
-      case 'serial':
-        return new SerialConnection();
-      case 'bluetooth':
-        return new BluetoothConnection();
-      default:
-        throw new Error(`Unsupported connection type: ${type}`);
-    }
-  };
-
   const connect = useCallback(async (type: ConnectionType) => {
     if (state.isConnected) {
       await disconnect();
@@ -126,7 +119,7 @@ export function useNMEA() {
 
     try {
       if (!globalConnection) {
-        globalConnection = getConnection(type);
+        globalConnection = ConnectionFactory.createConnection(type);
       }
       if (!globalAccumulator) {
         globalAccumulator = new NMEAAccumulator();
@@ -205,7 +198,6 @@ export function useNMEA() {
     disconnect,
     sendCommand,
     setFilter,
-    serialSupported: SerialConnection.support.isSupported(),
-    bluetoothSupported: BluetoothConnection.support.isSupported()
+    supportedTypes: ConnectionFactory.getSupportedTypes()
   };
 }

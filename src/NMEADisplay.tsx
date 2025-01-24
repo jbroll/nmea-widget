@@ -3,7 +3,6 @@ import { NMEADataCard } from './NMEADataCard';
 import { NMEAAccumulatorCard } from './NMEAAccumulatorCard';
 import { NMEARawSerialCard } from './NMEARawSerialCard';
 import { ConnectionControls } from './ConnectionControls';
-import { ConnectionType } from './ConnectionInterface';
 
 export const NMEADisplay = () => {
   const { 
@@ -14,8 +13,7 @@ export const NMEADisplay = () => {
     connect,
     disconnect,
     setFilter,
-    serialSupported,
-    bluetoothSupported
+    supportedTypes
   } = useNMEA();
 
   return (
@@ -26,10 +24,9 @@ export const NMEADisplay = () => {
         <ConnectionControls 
           isConnected={isConnected}
           isConnecting={isConnecting}
-          onConnect={(type: ConnectionType) => connect(type)}
+          onConnect={connect}
           onDisconnect={disconnect}
-          serialSupported={serialSupported}
-          bluetoothSupported={bluetoothSupported}
+          supportedTypes={supportedTypes}
         />
       </div>
 

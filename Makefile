@@ -18,6 +18,7 @@ publish: publishVType
 publishVType: simple
 	npm version $(VTYPE)
 	TAG=$$(npm pkg get version); $(MAKE) demoVersion TAG=$$TAG
+	git add . && git commit --amend --no-edit
 	npm publish
 	echo Published $$(npm pkg get version)
 

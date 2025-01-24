@@ -65,7 +65,7 @@ export class BluetoothConnection implements ConnectionInterface {
       //console.log('Connected to GATT server');
 
       // Log available services
-      const services = await gatt.getPrimaryServices();
+      //const services = await gatt.getPrimaryServices();
       //console.log('Available services:', services.map((s: BluetoothRemoteGATTService) => s.uuid));
 
       // Try to find a compatible service
