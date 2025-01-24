@@ -4,7 +4,11 @@ import { NMEAAccumulatorCard } from './NMEAAccumulatorCard';
 import { NMEARawSerialCard } from './NMEARawSerialCard';
 import { NMEAButton } from './NMEAButton';
 
-export const NMEADisplay = () => {
+export interface NMEADisplayProps {
+  onDetailsClick?: () => void;
+}
+
+export const NMEADisplay = ({ onDetailsClick }: NMEADisplayProps) => {
   const { 
     serialData, 
     processedData,
@@ -16,7 +20,10 @@ export const NMEADisplay = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">NMEA Data</h1>
         
-        <NMEAButton detailsLabel='NMEA Data' detailsURL='/monitor' />
+        <NMEAButton 
+          detailsLabel={onDetailsClick ? 'NMEA Data' : undefined}
+          onDetailsClick={onDetailsClick}
+        />
       </div>
 
       <NMEADataCard processedData={processedData} />

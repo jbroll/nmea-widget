@@ -5,14 +5,14 @@ import { ConnectionType } from './ConnectionInterface';
 
 interface NMEAButtonProps {
   className?: string;
-  detailsLabel: string, 
-  detailsURL: string
+  detailsLabel?: string;
+  onDetailsClick?: () => void;
 }
 
 export const NMEAButton = ({ 
   className = 'inline-flex items-center px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200',
   detailsLabel,
-  detailsURL
+  onDetailsClick
 }: NMEAButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -113,15 +113,18 @@ export const NMEAButton = ({
             </button>
           ))}
           
-          {detailsURL && (
+          {detailsLabel && onDetailsClick && (
             <>
               <div class="border-t my-2"></div>
-              <a 
-                href={detailsURL}
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  onDetailsClick();
+                }}
                 class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
-                {detailsLabel || 'View Details'}
-              </a>
+                {detailsLabel}
+              </button>
             </>
           )}
         </div>

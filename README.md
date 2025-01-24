@@ -114,7 +114,9 @@ function CustomDisplay() {
         <h1>GPS Data</h1>
         <NMEAButton 
           detailsLabel="View Details"
-          detailsURL="/details"
+          onDetailsClick={() => {
+            // Handle details view
+          }}
         />
       </div>
       <NMEADetailView processedData={processedData} />
@@ -130,7 +132,11 @@ function CustomDisplay() {
 The main component that provides a complete UI for NMEA data visualization. Automatically manages connection and data processing.
 
 ```tsx
-<NMEADisplay />
+<NMEADisplay 
+  onDetailsClick={() => {
+    // Handle details view navigation
+  }}
+/>
 ```
 
 ### NMEAButton
@@ -139,9 +145,9 @@ A status indicator and connection management button.
 
 ```tsx
 <NMEAButton
-  detailsLabel="View Details"  // Optional label for details link
-  detailsURL="/details"        // Optional URL for details page
-  className="custom-styles"    // Optional class name for styling
+  detailsLabel="View Details"       // Optional label for details action
+  onDetailsClick={() => {}}         // Optional callback for details action
+  className="custom-styles"         // Optional class name for styling
 />
 ```
 
@@ -150,7 +156,7 @@ Features:
 - Displays current fix type and accuracy when connected
 - Dropdown menu for connection type selection
 - Quick disconnect option
-- Optional details link
+- Optional details callback
 - Customizable styling
 
 ### SatellitePlot
