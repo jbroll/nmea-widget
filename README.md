@@ -2,7 +2,7 @@
 
 <img align="right" src="images/NMEADisplay.png" alt="NMEA Data Display" width="400">
 
-A modern React/Preact component library for visualizing NMEA GPS data in real-time using Web Serial and Web Bluetooth APIs. Built with TypeScript and Tailwind CSS.
+A modern React/Preact component library for visualizing NMEA GPS data in real-time using Web Serial, Web Bluetooth, and Geolocation APIs. Built with TypeScript and Tailwind CSS.
 
 [Try the nmea-demo!](https://jbroll.github.io/nmea-widgets/)
 
@@ -13,6 +13,7 @@ A modern React/Preact component library for visualizing NMEA GPS data in real-ti
 - Multiple connection options:
   - Web Serial API for USB and serial port connections
   - Web Bluetooth API for Bluetooth Low Energy (BLE) UART devices
+  - Geolocation API for browser location services
 - Real-time NMEA sentence parsing and visualization
 - Interactive satellite constellation view showing:
   - GPS, GLONASS, Galileo, and BeiDou satellites
@@ -34,6 +35,11 @@ A modern React/Preact component library for visualizing NMEA GPS data in real-ti
   - Collapsible interface
   - Copy functionality
 - Processed data inspection panel
+- Status button component showing:
+  - Current connection state
+  - Fix quality and accuracy
+  - Connection type selection
+  - Quick disconnect option
 - Responsive design that works on desktop and mobile browsers
 
 ## Installation
@@ -86,10 +92,10 @@ function App() {
 }
 ```
 
-For more control over the NMEA processing, you can use the `useNMEA` hook:
+For more control over the NMEA processing, you can use the `useNMEA` hook and individual components:
 
 ```tsx
-import { useNMEA, NMEADetailView } from '@jbroll/nmea-widgets';
+import { useNMEA, NMEADetailView, NMEAButton } from '@jbroll/nmea-widgets';
 
 function CustomDisplay() {
   const { 
@@ -99,18 +105,18 @@ function CustomDisplay() {
     connect,
     disconnect,
     setFilter,
-    serialSupported,
-    bluetoothSupported
+    supportedTypes
   } = useNMEA();
 
   return (
     <div>
-      <button onClick={() => connect('serial')} disabled={!serialSupported || isConnected}>
-        Connect Serial
-      </button>
-      <button onClick={() => connect('bluetooth')} disabled={!bluetoothSupported || isConnected}>
-        Connect Bluetooth
-      </button>
+      <div className="flex justify-between">
+        <h1>GPS Data</h1>
+        <NMEAButton 
+          detailsLabel="View Details"
+          detailsURL="/details"
+        />
+      </div>
       <NMEADetailView processedData={processedData} />
     </div>
   );
@@ -121,11 +127,31 @@ function CustomDisplay() {
 
 ### NMEADisplay
 
-The main component that provides a complete UI for NMEA data visualization. Automatically manages serial/bluetooth connection and data processing.
+The main component that provides a complete UI for NMEA data visualization. Automatically manages connection and data processing.
 
 ```tsx
 <NMEADisplay />
 ```
+
+### NMEAButton
+
+A status indicator and connection management button.
+
+```tsx
+<NMEAButton
+  detailsLabel="View Details"  // Optional label for details link
+  detailsURL="/details"        // Optional URL for details page
+  className="custom-styles"    // Optional class name for styling
+/>
+```
+
+Features:
+- Shows connection status with color coding
+- Displays current fix type and accuracy when connected
+- Dropdown menu for connection type selection
+- Quick disconnect option
+- Optional details link
+- Customizable styling
 
 ### SatellitePlot
 
@@ -166,21 +192,21 @@ Features:
 
 ### useNMEA Hook
 
-A React hook that handles Web Serial/Bluetooth communication and NMEA data processing.
+A React hook that handles device communication and NMEA data processing.
 
 ```tsx
 const {
-  serialData,        // Raw NMEA sentences
-  processedData,     // Parsed and processed NMEA data
-  isConnected,       // Connection state
-  isConnecting,      // Connection in progress
-  error,             // Error state
-  connect,           // Function to initiate connection (type: 'serial' | 'bluetooth')
-  disconnect,        // Function to close connection
-  sendCommand,       // Function to send commands to device
-  setFilter,         // Function to filter NMEA sentences
-  serialSupported,   // Whether Web Serial API is supported
-  bluetoothSupported // Whether Web Bluetooth API is supported
+  serialData,         // Raw NMEA sentences
+  processedData,      // Parsed and processed NMEA data
+  isConnected,        // Connection state
+  isConnecting,       // Connection in progress
+  error,              // Error state
+  connect,            // Function to initiate connection
+  disconnect,         // Function to close connection
+  sendCommand,        // Function to send commands to device
+  setFilter,          // Function to filter NMEA sentences
+  supportedTypes,     // Array of supported connection types
+  connection          // Current connection interface
 } = useNMEA();
 ```
 
@@ -245,6 +271,9 @@ Supported constellations:
 - Opera (desktop) version 43+
 - Chrome for Android version 56+
 - Samsung Internet version 6.0+
+
+### Geolocation API
+- All modern browsers
 
 ### Bluetooth Device Compatibility
 The library supports various UART/Serial over Bluetooth LE services including:
