@@ -2,18 +2,13 @@ import { useNMEA } from './useNMEA';
 import { NMEADataCard } from './NMEADataCard';
 import { NMEAAccumulatorCard } from './NMEAAccumulatorCard';
 import { NMEARawSerialCard } from './NMEARawSerialCard';
-import { ConnectionControls } from './ConnectionControls';
+import { NMEAButton } from './NMEAButton';
 
 export const NMEADisplay = () => {
   const { 
     serialData, 
     processedData,
-    isConnected,
-    isConnecting,
-    connect,
-    disconnect,
     setFilter,
-    supportedTypes
   } = useNMEA();
 
   return (
@@ -21,13 +16,7 @@ export const NMEADisplay = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">NMEA Data</h1>
         
-        <ConnectionControls 
-          isConnected={isConnected}
-          isConnecting={isConnecting}
-          onConnect={connect}
-          onDisconnect={disconnect}
-          supportedTypes={supportedTypes}
-        />
+        <NMEAButton detailsLabel='NMEA Data' detailsURL='/monitor' />
       </div>
 
       <NMEADataCard processedData={processedData} />

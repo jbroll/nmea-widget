@@ -1,8 +1,12 @@
-export interface ConnectionSupport {
-  isSupported(): boolean;
+export interface ConnectionType {
+  id: string;
+  label: string;
+  constructor: ConnectionConstructor;
+  isSupported: boolean;
 }
 
 export interface ConnectionInterface {
+  id: string;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   isConnected(): boolean;
@@ -12,11 +16,5 @@ export interface ConnectionInterface {
 
 export interface ConnectionConstructor {
   new(): ConnectionInterface;
-  support: ConnectionSupport;
-}
-
-export type ConnectionType = 'serial' | 'bluetooth' | 'geolocation';
-
-export interface ConnectionOptions {
-  type: ConnectionType;
+  supported: boolean;
 }

@@ -13,7 +13,7 @@ export { NMEAAccumulator } from './NMEAAccumulator';
 export { useNMEA } from './useNMEA';
 
 // Connection types
-export type { ConnectionInterface, ConnectionType, ConnectionOptions, ConnectionSupport } from './ConnectionInterface';
+export type { ConnectionInterface, ConnectionType } from './ConnectionInterface';
 
 // Utility components
 export { CopyToClipboard } from './CopyToClipboard';

@@ -66,7 +66,7 @@ const shouldShowSentence = (sentence: string): boolean => {
 export function useNMEA() {
   const [state, setState] = useState<NMEAState>({
     ...globalState,
-    supportedTypes: ConnectionFactory.getSupportedTypes()
+    supportedTypes: ConnectionFactory.getConnectionTypes()
   });
 
   // Listen for state updates
@@ -198,6 +198,7 @@ export function useNMEA() {
     disconnect,
     sendCommand,
     setFilter,
-    supportedTypes: ConnectionFactory.getSupportedTypes()
+    connection: globalConnection,
+    supportedTypes: ConnectionFactory.getConnectionTypes()
   };
 }

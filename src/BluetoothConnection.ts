@@ -1,6 +1,6 @@
 /// <reference types="web-bluetooth" />
 
-import { ConnectionInterface, ConnectionSupport } from './ConnectionInterface';
+import { ConnectionInterface } from './ConnectionInterface';
 
 // Common UART/Serial service UUIDs
 const UART_SERVICES = [
@@ -34,14 +34,13 @@ export class BluetoothConnection implements ConnectionInterface {
   private decoder = new TextDecoder();
   private buffer = '';
 
-  static support: ConnectionSupport = {
-    isSupported: (): boolean => {
-      return 'bluetooth' in navigator && 'requestDevice' in (navigator as any).bluetooth;
-    }
-  };
+  static supported: boolean = 'bluetooth' in navigator && 'requestDevice' in (navigator as any).bluetooth;
+  static Id = 'bluetooth';
+
+  id: string = BluetoothConnection.Id;
 
   public async connect(): Promise<void> {
-    if (!BluetoothConnection.support.isSupported()) {
+    if (!BluetoothConnection.supported) {
       throw new Error('Web Bluetooth is not supported in this browser.');
     }
 

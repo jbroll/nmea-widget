@@ -1,4 +1,4 @@
-import { ConnectionInterface, ConnectionSupport } from './ConnectionInterface';
+import { ConnectionInterface } from './ConnectionInterface';
 
 export class SerialConnection implements ConnectionInterface {
   private port: SerialPort | null = null;
@@ -8,14 +8,13 @@ export class SerialConnection implements ConnectionInterface {
   // Constants
   private static BAUD_RATE = 115200;
 
-  static support: ConnectionSupport = {
-    isSupported: (): boolean => {
-      return 'serial' in navigator;
-    }
-  };
+  static supported: boolean = 'serial' in navigator;
+
+  static Id = 'serail';
+  id: string = SerialConnection.Id;
 
   public async connect(): Promise<void> {
-    if (!SerialConnection.support.isSupported()) {
+    if (!SerialConnection.supported) {
       throw new Error('Web Serial is not supported in this browser.');
     }
 

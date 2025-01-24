@@ -1,26 +1,39 @@
-import { ConnectionInterface, ConnectionType, ConnectionConstructor } from './ConnectionInterface';
+import { ConnectionInterface, ConnectionType } from './ConnectionInterface';
 import { SerialConnection } from './SerialConnection';
 import { BluetoothConnection } from './BluetoothConnection';
 import { GeoLocationConnection } from './GeoLocationConnection';
 
 export class ConnectionFactory {
-  private static connections = new Map<ConnectionType, ConnectionConstructor>([
-    ['serial', SerialConnection as ConnectionConstructor],
-    ['bluetooth', BluetoothConnection as ConnectionConstructor],
-    ['geolocation', GeoLocationConnection as ConnectionConstructor]
-  ]);
+  private static connectionTypes: ConnectionType[] = [
+    {
+      id: SerialConnection.Id,
+      label: 'Serial Port',
+      constructor: SerialConnection,
+      isSupported: SerialConnection.supported
+    },
+    {
+      id: BluetoothConnection.Id,
+      label: 'Bluetooth',
+      constructor: BluetoothConnection,
+      isSupported: BluetoothConnection.supported
+    },
+    {
+      id: GeoLocationConnection.Id,
+      label: 'Browser Location',
+      constructor: GeoLocationConnection,
+      isSupported: GeoLocationConnection.supported
+    }
+  ];
 
   static createConnection(type: ConnectionType): ConnectionInterface {
-    const Connection = this.connections.get(type);
-    if (!Connection) {
-      throw new Error(`Unknown connection type: ${type}`);
+    if (!type.isSupported) {  
+      throw new Error(`Connection type not supported: ${type}`);
     }
-    return new Connection();
+
+    return new type.constructor();
   }
 
-  static getSupportedTypes(): ConnectionType[] {
-    return Array.from(this.connections.entries())
-      .filter(([_, Connection]) => Connection.support.isSupported())
-      .map(([type]) => type);
+  static getConnectionTypes(): ConnectionType[] {
+    return this.connectionTypes;
   }
 }

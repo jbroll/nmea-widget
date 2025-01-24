@@ -1,4 +1,4 @@
-import { ConnectionInterface, ConnectionSupport } from './ConnectionInterface';
+import { ConnectionInterface } from './ConnectionInterface';
 
 export class GeoLocationConnection implements ConnectionInterface {
   private watchId: number | null = null;
@@ -6,14 +6,13 @@ export class GeoLocationConnection implements ConnectionInterface {
   private lastTimestamp: number = 0;
   private updateIntervalMs: number = 1000; // Update frequency
 
-  static support: ConnectionSupport = {
-    isSupported: (): boolean => {
-      return 'geolocation' in navigator;
-    }
-  };
+  static supported: boolean = 'geolocation' in navigator;
+
+  static Id = 'geolocation';
+  id: string = GeoLocationConnection.Id;
 
   public async connect(): Promise<void> {
-    if (!GeoLocationConnection.support.isSupported()) {
+    if (!GeoLocationConnection.supported) {
       throw new Error('Geolocation is not supported in this browser.');
     }
 
