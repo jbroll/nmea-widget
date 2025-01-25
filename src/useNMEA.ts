@@ -185,13 +185,6 @@ export function useNMEA() {
     }
   }, []);
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      disconnect().catch(console.error);
-    };
-  }, []);
-
   return {
     ...state,
     connect,
